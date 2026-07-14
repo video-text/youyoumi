@@ -1,0 +1,38 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "youyoumi-site",
+  "compatibility_date": "2026-07-14",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "@astrojs/cloudflare/entrypoints/server",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS"
+  },
+  "routes": [
+    {
+      "pattern": "youyoumi.asia",
+      "custom_domain": true
+    },
+    {
+      "pattern": "www.youyoumi.asia",
+      "custom_domain": true
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "SITE_DB"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "SITE_MEDIA"
+    }
+  ],
+  "vars": {
+    "PUBLIC_SITE_URL": "https://youyoumi.asia",
+    "KEYSTATIC_GITHUB_REPO": "video-text/youyoumi-site"
+  },
+  "observability": {
+    "enabled": true
+  }
+}
