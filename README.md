@@ -13,6 +13,10 @@ npm run dev
 - Website: `http://localhost:4321`
 - Keystatic: `http://localhost:4321/keystatic`
 
+The default development mode uses the production GitHub-backed Keystatic workflow. Set
+`KEYSTATIC_LOCAL_MODE=true` before starting Astro only when you intentionally want edits
+written directly to the local filesystem.
+
 ## Production
 
 1. Connect the GitHub repository in Keystatic and copy the four Keystatic variables to Cloudflare secrets/variables.
