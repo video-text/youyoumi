@@ -1,0 +1,534 @@
+---
+export const prerender = true;
+
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getSiteContent } from "../lib/content";
+
+const { site, homepage, services } = await getSiteContent();
+const brand = site.brandName;
+const year = new Date().getFullYear();
+const heroTitleHtml = homepage.heroTitle.replace(
+  /e-commerce growth\.?/i,
+  "<em>e-commerce growth.</em>"
+);
+---
+
+<BaseLayout>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  <header class="site-header" id="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="#home" aria-label={`${brand} home`}>
+        <span class="brand-mark" aria-hidden="true">V</span>
+        <span>{brand}</span>
+      </a>
+
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation">
+        <span class="sr-only">Toggle navigation</span>
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <nav class="primary-nav" id="primary-navigation" aria-label="Primary navigation">
+        <a href="#home">Home</a>
+        <a href="#about">About</a>
+        <a href="#services">Services</a>
+        <a href="#contact">Contact</a>
+        <a href="#privacy">Privacy</a>
+        <a href="#terms">Terms</a>
+        <a href="/keystatic">Admin</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <section class="hero section" id="home" aria-labelledby="hero-title">
+      <div class="hero-glow hero-glow-one" aria-hidden="true"></div>
+      <div class="hero-glow hero-glow-two" aria-hidden="true"></div>
+
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow"><span></span> {homepage.eyebrow}</p>
+          <h1 id="hero-title" set:html={heroTitleHtml} />
+          <p class="hero-lead">{homepage.heroLead}</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#services">Explore our services</a>
+            <a class="button button-secondary" href={`mailto:${site.contactEmail}`}>Contact us</a>
+          </div>
+          <ul class="hero-principles" aria-label="Our approach">
+            <li><span aria-hidden="true">✓</span> Operations-led</li>
+            <li><span aria-hidden="true">✓</span> Data-informed</li>
+            <li><span aria-hidden="true">✓</span> Built to scale</li>
+          </ul>
+        </div>
+
+        <div class="hero-panel" aria-label={`${brand} workflow overview`}>
+          <div class="panel-topline">
+            <span>Commerce workflow</span>
+            <span class="status"><i></i> Connected</span>
+          </div>
+          <div class="workflow-list">
+            <article class="workflow-item">
+              <span class="step-number">01</span>
+              <div>
+                <h2>Discover</h2>
+                <p>Market and product signals</p>
+              </div>
+              <span class="step-tag">Research</span>
+            </article>
+            <article class="workflow-item">
+              <span class="step-number">02</span>
+              <div>
+                <h2>Create</h2>
+                <p>AI-assisted video content</p>
+              </div>
+              <span class="step-tag">Content</span>
+            </article>
+            <article class="workflow-item">
+              <span class="step-number">03</span>
+              <div>
+                <h2>Optimize</h2>
+                <p>Performance analysis</p>
+              </div>
+              <span class="step-tag">Insights</span>
+            </article>
+            <article class="workflow-item">
+              <span class="step-number">04</span>
+              <div>
+                <h2>Automate</h2>
+                <p>Repeatable operating workflows</p>
+              </div>
+              <span class="step-tag">Systems</span>
+            </article>
+          </div>
+          <div class="panel-footer">
+            <span>One practical operating loop</span>
+            <div class="progress-track" aria-hidden="true"><span></span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-light" id="about" aria-labelledby="about-title">
+      <div class="container">
+        <div class="section-heading split-heading">
+          <div>
+            <p class="section-label">About us</p>
+            <h2 id="about-title">{homepage.aboutTitle}</h2>
+          </div>
+          <p>{homepage.aboutIntro}</p>
+        </div>
+
+        <div class="about-grid">
+          <article class="about-card about-card-primary">
+            <span class="card-index">01</span>
+            <h3>Our mission</h3>
+            <p>
+              To help e-commerce teams make better operating decisions and build repeatable growth
+              systems across content, commerce, and data.
+            </p>
+          </article>
+          <article class="about-card">
+            <span class="card-index">02</span>
+            <h3>How we work</h3>
+            <p>
+              We start with business goals, organize the right signals, and turn them into practical
+              workflows that teams can understand and use.
+            </p>
+          </article>
+          <article class="about-card">
+            <span class="card-index">03</span>
+            <h3>Who we support</h3>
+            <p>
+              Brands, sellers, and e-commerce operators working across international markets and
+              fast-moving social commerce channels.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="services" aria-labelledby="services-title">
+      <div class="container">
+        <div class="section-heading centered-heading">
+          <p class="section-label">What we do</p>
+          <h2 id="services-title">{homepage.servicesTitle}</h2>
+          <p>{homepage.servicesIntro}</p>
+        </div>
+
+        <div class="services-grid">
+          {
+            services.map((service, index) => (
+              <article class="service-card">
+                <span class="service-number">{String(index + 1).padStart(2, "0")}</span>
+                <h3>{service.title}</h3>
+                <p>{service.description}</p>
+              </article>
+            ))
+          }
+        </div>
+
+        <div class="process-strip" aria-label="Our operating process">
+          <div>
+            <span>01</span>
+            <strong>Understand</strong>
+            <small>Goals and constraints</small>
+          </div>
+          <i aria-hidden="true"></i>
+          <div>
+            <span>02</span>
+            <strong>Design</strong>
+            <small>Practical workflows</small>
+          </div>
+          <i aria-hidden="true"></i>
+          <div>
+            <span>03</span>
+            <strong>Execute</strong>
+            <small>Focused implementation</small>
+          </div>
+          <i aria-hidden="true"></i>
+          <div>
+            <span>04</span>
+            <strong>Improve</strong>
+            <small>Measured iteration</small>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section contact-section" id="contact" aria-labelledby="contact-title">
+      <div class="container contact-grid">
+        <div>
+          <p class="section-label section-label-light">Contact</p>
+          <h2 id="contact-title">{homepage.contactTitle}</h2>
+          <p>{homepage.contactIntro}</p>
+
+          <form class="contact-form" id="contact-form">
+            <label>
+              <span>Name</span>
+              <input name="name" type="text" required autocomplete="name" />
+            </label>
+            <label>
+              <span>Email</span>
+              <input name="email" type="email" required autocomplete="email" />
+            </label>
+            <label>
+              <span>Company</span>
+              <input name="company" type="text" autocomplete="organization" />
+            </label>
+            <label>
+              <span>Message</span>
+              <textarea name="message" rows="4" required></textarea>
+            </label>
+            <button class="button button-primary" type="submit">Send inquiry</button>
+            <p class="form-status" id="contact-status" aria-live="polite"></p>
+          </form>
+        </div>
+
+        <address class="contact-card">
+          <div class="contact-row">
+            <span>General inquiries</span>
+            <a href={`mailto:${site.contactEmail}`}>{site.contactEmail}</a>
+          </div>
+          <div class="contact-row">
+            <span>Business &amp; API</span>
+            <a href={`mailto:${site.apiEmail}`}>{site.apiEmail}</a>
+          </div>
+          <div class="contact-row">
+            <span>Location</span>
+            <strong>{site.location}</strong>
+          </div>
+          <div class="contact-row">
+            <span>Website</span>
+            <a href={site.websiteUrl}>youyoumi.asia</a>
+          </div>
+        </address>
+      </div>
+    </section>
+
+    <section class="section legal-section" id="privacy" aria-labelledby="privacy-title">
+      <div class="container legal-layout">
+        <aside class="legal-intro">
+          <p class="section-label">Legal</p>
+          <h2 id="privacy-title">Privacy Policy</h2>
+          <p class="effective-date">Effective date: July 14, 2026</p>
+        </aside>
+
+        <div class="legal-content">
+          <p>
+            {brand} ("{brand}," "we," "us," or "our") respects your privacy.
+            This Privacy Policy explains how we collect, use, disclose, and protect information
+            when you visit this website, contact us, or use services that we provide.
+          </p>
+
+          <h3>1. Information We Collect</h3>
+          <p>
+            We may collect information that you provide directly, such as your name, business name,
+            email address, and the contents of your inquiry. Our hosting provider may also process
+            limited technical information, such as IP address, browser type, device type, and access
+            logs, for security, reliability, and service delivery.
+          </p>
+
+          <h3>2. Platform and API Data</h3>
+          <p>
+            If a client authorizes an integration with TikTok or another third-party platform, we
+            access only the data and permissions needed to provide the requested service. Depending on
+            the approved integration, this may include authorized account, content, shop, campaign, or
+            performance information. We use platform data only for the client-authorized business purpose,
+            do not sell it, and do not use it for unrelated advertising.
+          </p>
+
+          <h3>3. How We Use Information</h3>
+          <ul>
+            <li>To respond to inquiries and provide requested services.</li>
+            <li>To operate, secure, maintain, and improve our website and business workflows.</li>
+            <li>To perform analytics or automation requested and authorized by a client.</li>
+            <li>To comply with applicable law, platform requirements, and contractual obligations.</li>
+            <li>To prevent fraud, misuse, or security incidents.</li>
+          </ul>
+
+          <h3>4. Information Sharing</h3>
+          <p>
+            We do not sell personal information or authorized platform data. We may share limited
+            information with service providers that help us operate our business, when directed by the
+            relevant client, when required by law, or when necessary to protect rights and security.
+            Service providers are expected to process information only for the contracted purpose.
+          </p>
+
+          <h3>5. Data Retention and Deletion</h3>
+          <p>
+            We retain information only for as long as reasonably necessary to provide the requested
+            service, meet legal or contractual requirements, resolve disputes, and maintain security.
+            Authorized platform data is deleted or de-identified when it is no longer needed for the
+            approved purpose, when authorization is withdrawn, or when deletion is required by the
+            relevant platform. You may request deletion by emailing
+            <a href={`mailto:${site.apiEmail}`}>{site.apiEmail}</a>.
+          </p>
+
+          <h3>6. Data Security</h3>
+          <p>
+            We use reasonable administrative, technical, and organizational safeguards designed to
+            protect information. No method of transmission or storage is completely secure, so we cannot
+            guarantee absolute security.
+          </p>
+
+          <h3>7. Your Choices and Rights</h3>
+          <p>
+            Subject to applicable law, you may request access to, correction of, or deletion of your
+            personal information. You may also withdraw consent where processing is based on consent.
+            To make a request, contact us using the details below. We may need to verify your identity
+            before completing a request.
+          </p>
+
+          <h3>8. Third-Party Services</h3>
+          <p>
+            Our website or services may reference third-party platforms. Their privacy practices are
+            governed by their own policies. This website does not intentionally use advertising cookies
+            or third-party behavioral tracking in its default configuration.
+          </p>
+
+          <h3>9. Children’s Privacy</h3>
+          <p>
+            Our services are intended for businesses and are not directed to children. We do not knowingly
+            collect personal information from children under the age required by applicable law.
+          </p>
+
+          <h3>10. Changes and Contact</h3>
+          <p>
+            We may update this Privacy Policy from time to time. Changes will be posted on this page with
+            a revised effective date. For privacy, API data, or deletion questions, email
+            <a href={`mailto:${site.apiEmail}`}>{site.apiEmail}</a>. For general inquiries, email
+            <a href={`mailto:${site.contactEmail}`}>{site.contactEmail}</a>.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section legal-section legal-section-alt" id="terms" aria-labelledby="terms-title">
+      <div class="container legal-layout">
+        <aside class="legal-intro">
+          <p class="section-label">Legal</p>
+          <h2 id="terms-title">Terms of Service</h2>
+          <p class="effective-date">Effective date: July 14, 2026</p>
+        </aside>
+
+        <div class="legal-content">
+          <p>
+            These Terms of Service ("Terms") govern your access to this website and any services provided
+            by {brand}. By using this website or engaging our services, you agree to these Terms.
+            If you do not agree, please do not use the website or services.
+          </p>
+
+          <h3>1. Business Services</h3>
+          <p>
+            {brand} provides cross-border e-commerce operations, content production, marketing
+            analytics, product research, and workflow automation support. The specific scope, deliverables,
+            fees, timing, and responsibilities for paid work will be defined in a separate written agreement,
+            proposal, or order accepted by the parties.
+          </p>
+
+          <h3>2. Authorized Use</h3>
+          <p>
+            You may use this website and our services only for lawful business purposes. You must not misuse
+            the website, attempt unauthorized access, interfere with its operation, submit unlawful content,
+            or use our services to violate another party’s rights or any platform’s policies.
+          </p>
+
+          <h3>3. Client Responsibilities</h3>
+          <p>
+            Clients are responsible for the accuracy and legality of the information, content, accounts,
+            permissions, and instructions they provide. Clients must obtain all rights and authorizations
+            needed for us to perform the requested work and must comply with applicable laws and third-party
+            platform terms.
+          </p>
+
+          <h3>4. Third-Party Platforms and APIs</h3>
+          <p>
+            Some services may depend on third-party platforms or APIs, including TikTok. Availability,
+            features, permissions, and data are controlled by those third parties and may change. {brand}
+            is an independent service provider and is not affiliated with, endorsed by, or sponsored
+            by TikTok unless expressly stated in writing.
+          </p>
+
+          <h3>5. Intellectual Property</h3>
+          <p>
+            This website, its design, text, and original materials are owned by {brand} or its
+            licensors and are protected by applicable intellectual property laws. Ownership and permitted
+            use of client deliverables will be defined in the relevant service agreement. Clients retain
+            ownership of their pre-existing materials and data.
+          </p>
+
+          <h3>6. Confidentiality and Data</h3>
+          <p>
+            Each party must protect confidential information received from the other and use it only for
+            the agreed business purpose. Our handling of personal information and authorized platform data
+            is also governed by the Privacy Policy above and any applicable written agreement.
+          </p>
+
+          <h3>7. No Guaranteed Results</h3>
+          <p>
+            E-commerce results depend on market conditions, products, content, budgets, platform decisions,
+            and client execution. Unless expressly agreed in writing, we do not guarantee sales, revenue,
+            rankings, advertising performance, platform approval, or uninterrupted access to third-party
+            services.
+          </p>
+
+          <h3>8. Disclaimer and Limitation</h3>
+          <p>
+            To the extent permitted by law, the website is provided on an “as available” basis without
+            warranties of uninterrupted or error-free operation. {brand} will not be liable for
+            indirect, incidental, special, or consequential losses arising from use of this website.
+            Any liability relating to paid services will be governed by the applicable written agreement
+            and mandatory law.
+          </p>
+
+          <h3>9. Suspension and Termination</h3>
+          <p>
+            We may restrict access to the website or services when reasonably necessary to address security,
+            legal, payment, misuse, or platform-compliance concerns. Service termination rights and related
+            obligations will be defined in the applicable written agreement.
+          </p>
+
+          <h3>10. Changes and Contact</h3>
+          <p>
+            We may update these Terms by posting a revised version on this page. Continued use after an
+            update means you accept the revised Terms. Questions about these Terms may be sent to
+            <a href={`mailto:${site.contactEmail}`}>{site.contactEmail}</a>.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-top">
+      <a class="brand brand-footer" href="#home" aria-label={`${brand} home`}>
+        <span class="brand-mark" aria-hidden="true">V</span>
+        <span>{brand}</span>
+      </a>
+      <nav class="footer-nav" aria-label="Footer navigation">
+        <a href="#about">About</a>
+        <a href="#services">Services</a>
+        <a href="#contact">Contact</a>
+        <a href="#privacy">Privacy Policy</a>
+        <a href="#terms">Terms of Service</a>
+      </nav>
+    </div>
+    <div class="container footer-bottom">
+      <p>© <span id="current-year">{year}</span> {brand}. All rights reserved.</p>
+      <p>Cross-border e-commerce operation &amp; marketing technology.</p>
+    </div>
+  </footer>
+
+  <a class="back-to-top" href="#home" aria-label="Back to top">↑</a>
+</BaseLayout>
+
+<style is:global>
+  .contact-form {
+    display: grid;
+    gap: 14px;
+    margin-top: 28px;
+  }
+
+  .contact-form label {
+    display: grid;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 0.92rem;
+  }
+
+  .contact-form input,
+  .contact-form textarea {
+    width: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #fff;
+    padding: 12px 14px;
+    font: inherit;
+  }
+
+  .contact-form input:focus,
+  .contact-form textarea:focus {
+    outline: 2px solid #25d4c6;
+    outline-offset: 1px;
+  }
+
+  .form-status {
+    margin: 0;
+    min-height: 1.4em;
+    color: #dff9f5;
+  }
+</style>
+
+<script>
+  const form = document.querySelector("#contact-form");
+  const status = document.querySelector("#contact-status");
+
+  form?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (!(form instanceof HTMLFormElement) || !(status instanceof HTMLElement)) return;
+
+    const data = Object.fromEntries(new FormData(form).entries());
+    status.textContent = "Sending...";
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      const result = await response.json();
+
+      if (!response.ok || !result.ok) {
+        throw new Error(result.error || "Request failed");
+      }
+
+      status.textContent = "Thanks — your inquiry was received.";
+      form.reset();
+    } catch {
+      status.textContent = "Unable to send right now. Please email contact@youyoumi.asia.";
+    }
+  });
+</script>

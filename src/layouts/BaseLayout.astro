@@ -1,0 +1,54 @@
+---
+import "../styles/site.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = "Vielumi Global | Cross-Border E-commerce Technology",
+  description = "Vielumi Global helps cross-border e-commerce teams improve TikTok Shop operations, AI content production, marketing analytics, product research, and workflow automation.",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#071a2b" />
+    <link rel="canonical" href="https://youyoumi.asia/" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content="https://youyoumi.asia/" />
+
+    <title>{title}</title>
+
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      name: "Vielumi Global",
+      url: "https://youyoumi.asia",
+      email: "contact@youyoumi.asia",
+      description: "A cross-border e-commerce operation and marketing technology company.",
+      areaServed: "Global",
+      knowsAbout: [
+        "Cross-border e-commerce",
+        "TikTok Shop operations",
+        "AI video content production",
+        "Marketing data analytics",
+        "Product research",
+        "E-commerce workflow automation",
+      ],
+    })} />
+  </head>
+  <body>
+    <slot />
+    <script src="/script.js" defer></script>
+  </body>
+</html>

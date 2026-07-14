@@ -1,0 +1,40 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "youyoumi-site",
+  "compatibility_date": "2026-07-14",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "binding": "ASSETS",
+    "directory": "./dist"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "youyoumi-db",
+      "database_id": "fd1a08a6-137c-421d-a44e-456df97f08ed"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "MEDIA",
+      "bucket_name": "youyoumi-media"
+    }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "SESSION",
+      "id": "0e0da7d936ef4e48be0971abbb85773e"
+    }
+  ],
+  "routes": [
+    {
+      "pattern": "youyoumi.asia",
+      "custom_domain": true
+    },
+    {
+      "pattern": "www.youyoumi.asia",
+      "custom_domain": true
+    }
+  ],
+  "workers_dev": false
+}
