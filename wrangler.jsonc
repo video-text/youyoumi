@@ -30,7 +30,7 @@
   ],
   "vars": {
     "PUBLIC_SITE_URL": "https://youyoumi.asia",
-    "KEYSTATIC_GITHUB_REPO": "video-text/youyoumi-site"
+    "KEYSTATIC_GITHUB_REPO": "video-text/youyoumi"
   },
   "observability": {
     "enabled": true

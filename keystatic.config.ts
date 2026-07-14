@@ -1,6 +1,6 @@
 import { config, fields, collection, singleton } from "@keystatic/core";
 
-const repository = process.env.KEYSTATIC_GITHUB_REPO || "video-text/youyoumi-site";
+const repository = process.env.KEYSTATIC_GITHUB_REPO || "video-text/youyoumi";
 const useLocalStorage = process.env.KEYSTATIC_LOCAL_MODE === "true";
 
 export default config({
