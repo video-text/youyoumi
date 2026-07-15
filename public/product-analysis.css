@@ -363,6 +363,240 @@
   font-size: 0.78rem;
 }
 
+.chart-layout {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.chart-panel {
+  min-width: 0;
+  padding: 18px;
+  background: #f8fafb;
+  border: 1px solid #dce7ec;
+  border-radius: 15px;
+}
+
+.chart-panel-wide {
+  grid-column: span 2;
+}
+
+.chart-panel-full {
+  grid-column: 1 / -1;
+}
+
+.chart-panel > header,
+.heatmap-heading,
+.momentum-block > header {
+  display: flex;
+  margin-bottom: 14px;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.chart-panel header p,
+.heatmap-heading p,
+.momentum-block header p {
+  margin: 0 0 4px;
+  color: var(--cyan-dark);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.chart-panel header h3,
+.heatmap-heading h3,
+.momentum-block header h3 {
+  margin: 0;
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+}
+
+.chart-panel header > span,
+.momentum-block header > span {
+  color: var(--muted);
+  font-size: 0.7rem;
+  text-align: right;
+}
+
+.chart-canvas {
+  position: relative;
+  height: 280px;
+}
+
+.chart-canvas-tall {
+  height: 320px;
+}
+
+.chart-canvas-scatter {
+  height: 410px;
+}
+
+.chart-canvas canvas {
+  max-width: 100%;
+}
+
+.chart-table-wrap {
+  margin-top: 12px;
+  overflow-x: auto;
+  border-top: 1px solid #dfe8eb;
+}
+
+.chart-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.69rem;
+}
+
+.chart-data-table th,
+.chart-data-table td {
+  padding: 7px 8px;
+  color: var(--ink-soft);
+  border-bottom: 1px solid #e5edef;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.chart-data-table th:first-child,
+.chart-data-table td:first-child {
+  text-align: left;
+}
+
+.chart-data-table th {
+  color: var(--muted);
+  font-weight: 750;
+}
+
+.heatmap-block,
+.momentum-block {
+  margin-top: 16px;
+  padding: 20px;
+  background: #f8fafb;
+  border: 1px solid #dce7ec;
+  border-radius: 15px;
+}
+
+.heatmap-heading {
+  align-items: end;
+}
+
+.heatmap-heading label {
+  display: grid;
+  min-width: 180px;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 750;
+}
+
+.heatmap-heading select {
+  height: 39px;
+  padding: 7px 10px;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid #cfdde2;
+  border-radius: 9px;
+}
+
+.market-pool-heatmap {
+  display: grid;
+  gap: 5px;
+  grid-template-columns: minmax(72px, 0.7fr) repeat(3, minmax(110px, 1fr));
+  overflow-x: auto;
+}
+
+.heatmap-label,
+.heatmap-cell {
+  display: grid;
+  min-height: 54px;
+  padding: 8px 10px;
+  place-items: center;
+  border-radius: 8px;
+  font-size: 0.72rem;
+  text-align: center;
+}
+
+.heatmap-label {
+  color: var(--muted);
+  background: #edf3f5;
+  font-weight: 760;
+}
+
+.heatmap-label.market-label {
+  color: var(--ink);
+}
+
+.heatmap-cell {
+  color: var(--ink);
+  background: rgba(15, 158, 149, 0.08);
+  border: 1px solid rgba(15, 158, 149, 0.13);
+}
+
+.heatmap-cell strong,
+.heatmap-cell span {
+  display: block;
+}
+
+.heatmap-cell span {
+  color: inherit;
+  opacity: 0.76;
+  font-size: 0.64rem;
+}
+
+.heatmap-legend {
+  display: flex;
+  width: min(260px, 100%);
+  margin: 10px 0 0 auto;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.64rem;
+}
+
+.heatmap-legend i {
+  height: 7px;
+  flex: 1;
+  background: linear-gradient(90deg, rgba(15, 158, 149, 0.08), rgba(15, 158, 149, 0.9));
+  border-radius: 999px;
+}
+
+.crosstab-wrap {
+  max-height: 290px;
+  margin-top: 14px;
+  overflow: auto;
+}
+
+.momentum-table-wrap {
+  max-height: 440px;
+}
+
+.momentum-table {
+  min-width: 960px;
+}
+
+.momentum-table th:nth-child(3),
+.momentum-table td:nth-child(3) {
+  min-width: 180px;
+  text-align: left;
+  white-space: normal;
+}
+
+.momentum-ratio {
+  color: var(--cyan-dark);
+  font-weight: 800;
+}
+
+.chart-error {
+  display: grid;
+  height: 100%;
+  place-items: center;
+  color: var(--muted);
+  font-size: 0.78rem;
+  text-align: center;
+}
+
 .analysis-toolbar {
   display: flex;
   margin-bottom: 14px;
@@ -770,6 +1004,18 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
+  .chart-layout {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .chart-panel-wide {
+    grid-column: span 2;
+  }
+
+  .chart-panel-full {
+    grid-column: 1 / -1;
+  }
+
   .method-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -788,6 +1034,24 @@
 
   .concept-proof {
     max-width: 620px;
+  }
+
+  .chart-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-panel-wide,
+  .chart-panel-full {
+    grid-column: auto;
+  }
+
+  .chart-canvas,
+  .chart-canvas-tall {
+    height: 300px;
+  }
+
+  .chart-canvas-scatter {
+    height: 360px;
   }
 
   .detail-metrics {
@@ -832,6 +1096,16 @@
 
   .dialog-shell {
     padding: 20px 15px;
+  }
+
+  .heatmap-heading,
+  .momentum-block > header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .heatmap-heading label {
+    min-width: 100%;
   }
 }
 

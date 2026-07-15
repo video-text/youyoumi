@@ -6,6 +6,10 @@
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   });
+  const compactFormatter = new Intl.NumberFormat("zh-CN", {
+    notation: "compact",
+    maximumFractionDigits: 1,
+  });
 
   const poolLabels = {
     beauty: "美妆个护（非液体）",
@@ -14,6 +18,17 @@
   };
 
   let report = null;
+  const charts = {};
+  const chartColors = {
+    teal: "#0f9e95",
+    cyan: "#25d4c6",
+    blue: "#4d78e6",
+    amber: "#e6a329",
+    rose: "#e65d6c",
+    violet: "#835ad8",
+    gray: "#91a2ad",
+    ink: "#163247",
+  };
 
   const byId = (id) => document.getElementById(id);
   const asNumber = (value) => {
@@ -54,6 +69,485 @@
   const fillSelect = (select, values, labeler = (value) => value) => {
     values.forEach((value) => select?.append(new Option(labeler(value), value)));
   };
+
+  const sumField = (products, field) => products.reduce((sum, product) => sum + asNumber(product[field]), 0);
+  const shortLabel = (value, max = 18) => {
+    const label = String(value || "未命名");
+    return label.length > max ? label.slice(0, max) + "…" : label;
+  };
+  const signalMarkets = () => report.meta.signal_markets.filter(
+    (market) => report.products.some((product) => product.source_region === market)
+  );
+  const productsForMarket = (market) => report.products.filter((product) => product.source_region === market);
+  const productsForCell = (market, pool) => report.products.filter(
+    (product) => product.source_region === market && product.pool_key === pool
+  );
+
+  function renderDataTable(targetId, headers, rows) {
+    byId(targetId).innerHTML =
+      '<table class="chart-data-table"><thead><tr>' +
+      headers.map((header) => "<th>" + escapeHtml(header) + "</th>").join("") +
+      "</tr></thead><tbody>" +
+      rows.map((row) => "<tr>" + row.map((cell) => "<td>" + cell + "</td>").join("") + "</tr>").join("") +
+      "</tbody></table>";
+  }
+
+  function createChart(id, config) {
+    const canvas = byId(id);
+    if (!canvas || !window.Chart) return null;
+    charts[id]?.destroy();
+    charts[id] = new window.Chart(canvas, config);
+    return charts[id];
+  }
+
+  function cartesianOptions({ stacked = false, secondAxis = false, logarithmic = false } = {}) {
+    const scales = {
+      x: {
+        stacked,
+        grid: { display: false },
+        ticks: { color: "#687b8b", maxRotation: 35, minRotation: 0 },
+      },
+      y: {
+        stacked,
+        type: logarithmic ? "logarithmic" : "linear",
+        beginAtZero: !logarithmic,
+        grid: { color: "rgba(104, 123, 139, 0.16)" },
+        ticks: {
+          color: "#687b8b",
+          callback: (value) => compactFormatter.format(Number(value)),
+        },
+      },
+    };
+    if (secondAxis) {
+      scales.y1 = {
+        position: "right",
+        beginAtZero: true,
+        grid: { drawOnChartArea: false },
+        ticks: {
+          color: "#687b8b",
+          callback: (value) => compactFormatter.format(Number(value)),
+        },
+      };
+    }
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: {
+          position: "bottom",
+          labels: { usePointStyle: true, boxWidth: 8, color: "#526575", padding: 14 },
+        },
+        tooltip: {
+          callbacks: {
+            label: (context) => context.dataset.label + "：" + fmt(context.parsed.y ?? context.parsed),
+          },
+        },
+      },
+      scales,
+    };
+  }
+
+  function renderMarketSalesChart() {
+    const markets = signalMarkets();
+    const rows = markets.map((market) => {
+      const products = productsForMarket(market);
+      return {
+        market,
+        products: products.length,
+        sale7: sumField(products, "total_sale_7d_cnt"),
+        sale15: sumField(products, "total_sale_15d_cnt"),
+        sale30: sumField(products, "total_sale_30d_cnt"),
+        creators: sumField(products, "total_ifl_cnt"),
+        videos: sumField(products, "total_video_cnt"),
+        lives: sumField(products, "total_live_cnt"),
+      };
+    });
+
+    createChart("chart-market-sales", {
+      type: "bar",
+      data: {
+        labels: rows.map((row) => row.market),
+        datasets: [
+          {
+            label: "30天销量",
+            data: rows.map((row) => row.sale30),
+            backgroundColor: "rgba(15, 158, 149, 0.72)",
+            borderColor: chartColors.teal,
+            borderWidth: 1,
+            borderRadius: 6,
+            yAxisID: "y",
+          },
+          {
+            type: "line",
+            label: "达人数量",
+            data: rows.map((row) => row.creators),
+            borderColor: chartColors.amber,
+            backgroundColor: chartColors.amber,
+            pointStyle: "rectRot",
+            pointRadius: 4,
+            borderWidth: 2,
+            tension: 0.28,
+            yAxisID: "y1",
+          },
+        ],
+      },
+      options: cartesianOptions({ secondAxis: true }),
+    });
+
+    renderDataTable("market-sales-table",
+      ["市场", "商品", "30天销量", "达人", "视频", "直播"],
+      rows.map((row) => [
+        text(row.market), fmt(row.products), fmt(row.sale30), fmt(row.creators), fmt(row.videos), fmt(row.lives),
+      ])
+    );
+    return rows;
+  }
+
+  function renderPeriodSalesChart(marketRows) {
+    const periods = [
+      { label: "7天", field: "sale7" },
+      { label: "15天", field: "sale15" },
+      { label: "30天", field: "sale30" },
+    ];
+    const colors = [chartColors.teal, chartColors.blue, chartColors.amber, chartColors.rose, chartColors.violet];
+
+    createChart("chart-period-sales", {
+      type: "line",
+      data: {
+        labels: periods.map((period) => period.label),
+        datasets: marketRows.map((row, index) => ({
+          label: row.market,
+          data: periods.map((period) => row[period.field]),
+          borderColor: colors[index % colors.length],
+          backgroundColor: colors[index % colors.length],
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          borderWidth: 2,
+          tension: 0.25,
+        })),
+      },
+      options: cartesianOptions(),
+    });
+
+    renderDataTable("period-sales-table",
+      ["市场", "7天销量", "15天销量", "30天销量"],
+      marketRows.map((row) => [text(row.market), fmt(row.sale7), fmt(row.sale15), fmt(row.sale30)])
+    );
+  }
+
+  function renderConclusionChart() {
+    const entries = Object.entries(report.summary.conclusions);
+    const conclusionColors = entries.map(([conclusion]) => {
+      if (conclusion.includes("值得测款")) return chartColors.teal;
+      if (conclusion.includes("小批量")) return chartColors.cyan;
+      if (conclusion.includes("差异化")) return chartColors.amber;
+      if (conclusion.includes("红海")) return chartColors.rose;
+      return chartColors.gray;
+    });
+
+    createChart("chart-conclusions", {
+      type: "doughnut",
+      data: {
+        labels: entries.map(([label]) => label),
+        datasets: [{
+          data: entries.map(([, value]) => value),
+          backgroundColor: conclusionColors,
+          borderColor: "#f8fafb",
+          borderWidth: 3,
+          hoverOffset: 7,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: "58%",
+        plugins: {
+          legend: {
+            position: "bottom",
+            labels: { usePointStyle: true, boxWidth: 8, color: "#526575", padding: 11 },
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) => context.label + "：" + fmt(context.raw) + " 个商品",
+            },
+          },
+        },
+      },
+    });
+  }
+
+  function renderDistributionChart() {
+    const counts = new Map();
+    report.products.forEach((product) => {
+      const label = product.distribution_type || "未分类";
+      counts.set(label, (counts.get(label) || 0) + 1);
+    });
+    const entries = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+    const colors = [
+      chartColors.teal, chartColors.blue, chartColors.amber,
+      chartColors.rose, chartColors.violet, chartColors.gray,
+    ];
+
+    createChart("chart-distribution", {
+      type: "pie",
+      data: {
+        labels: entries.map(([label]) => label),
+        datasets: [{
+          data: entries.map(([, value]) => value),
+          backgroundColor: entries.map((_, index) => colors[index % colors.length]),
+          borderColor: "#f8fafb",
+          borderWidth: 3,
+          hoverOffset: 7,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: "bottom",
+            labels: { usePointStyle: true, boxWidth: 8, color: "#526575", padding: 10 },
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) => context.label + "：" + fmt(context.raw) + " 个商品",
+            },
+          },
+        },
+      },
+    });
+  }
+
+  function renderMarketConclusionChart() {
+    const markets = signalMarkets();
+    const conclusions = Object.keys(report.summary.conclusions);
+    const colors = conclusions.map((conclusion) => {
+      if (conclusion.includes("值得测款")) return chartColors.teal;
+      if (conclusion.includes("小批量")) return chartColors.cyan;
+      if (conclusion.includes("差异化")) return chartColors.amber;
+      if (conclusion.includes("红海")) return chartColors.rose;
+      return chartColors.gray;
+    });
+
+    createChart("chart-market-conclusions", {
+      type: "bar",
+      data: {
+        labels: markets,
+        datasets: conclusions.map((conclusion, index) => ({
+          label: conclusion,
+          data: markets.map((market) => report.products.filter(
+            (product) => product.source_region === market && product.conclusion === conclusion
+          ).length),
+          backgroundColor: colors[index],
+          borderWidth: 0,
+        })),
+      },
+      options: cartesianOptions({ stacked: true }),
+    });
+  }
+
+  function renderTopConceptsChart() {
+    const concepts = [...report.concepts]
+      .sort((a, b) => asNumber(b.sale_30d) - asNumber(a.sale_30d))
+      .slice(0, 10);
+    const labels = concepts.map((concept) => shortLabel(concept.product_concept, 15));
+    const options = cartesianOptions({ secondAxis: true });
+    options.indexAxis = "y";
+    options.scales.x = options.scales.y;
+    options.scales.y = {
+      grid: { display: false },
+      ticks: { color: "#687b8b" },
+    };
+    options.scales.x1 = {
+      position: "top",
+      beginAtZero: true,
+      grid: { drawOnChartArea: false },
+      ticks: {
+        color: "#687b8b",
+        callback: (value) => compactFormatter.format(Number(value)),
+      },
+    };
+    delete options.scales.y1;
+    options.plugins.tooltip.callbacks.label = (context) => {
+      const concept = concepts[context.dataIndex];
+      return context.dataset.label + "：" +
+        fmt(context.parsed.x) + " · " + concept.product_concept;
+    };
+
+    createChart("chart-top-concepts", {
+      type: "bar",
+      data: {
+        labels,
+        datasets: [
+          {
+            label: "30天销量",
+            data: concepts.map((concept) => concept.sale_30d),
+            backgroundColor: "rgba(15, 158, 149, 0.72)",
+            borderRadius: 5,
+            xAxisID: "x",
+          },
+          {
+            type: "line",
+            label: "达人数量",
+            data: concepts.map((concept) => concept.creators),
+            borderColor: chartColors.amber,
+            backgroundColor: chartColors.amber,
+            pointRadius: 3,
+            borderWidth: 2,
+            tension: 0.25,
+            xAxisID: "x1",
+          },
+        ],
+      },
+      options,
+    });
+  }
+
+  function renderConceptBubbleChart() {
+    const pools = [...new Set(report.concepts.map((concept) => concept.pool_key))];
+    const colors = {
+      beauty: chartColors.rose,
+      home_kitchen: chartColors.teal,
+      electronics_accessories: chartColors.blue,
+    };
+    const datasets = pools.map((pool) => ({
+      label: poolLabel(pool),
+      data: report.concepts
+        .filter((concept) => concept.pool_key === pool && asNumber(concept.sale_30d) > 0)
+        .map((concept) => ({
+          x: Math.max(1, asNumber(concept.sale_30d)),
+          y: Math.max(1, asNumber(concept.creators)),
+          r: Math.min(20, Math.max(4, Math.sqrt(asNumber(concept.videos) + 1) / 5)),
+          label: concept.product_concept,
+          videos: asNumber(concept.videos),
+          listings: asNumber(concept.listing_count),
+          markets: concept.markets,
+        })),
+      backgroundColor: colors[pool] + "99",
+      borderColor: colors[pool],
+      borderWidth: 1,
+    }));
+    const options = cartesianOptions({ logarithmic: true });
+    options.interaction = { mode: "nearest", intersect: true };
+    options.plugins.tooltip.callbacks = {
+      title: (items) => items[0]?.raw?.label || "",
+      label: (context) => [
+        "30天销量：" + fmt(context.raw.x),
+        "达人：" + fmt(context.raw.y),
+        "视频：" + fmt(context.raw.videos),
+        "同概念商品：" + fmt(context.raw.listings),
+        "市场：" + text(context.raw.markets),
+      ],
+    };
+    options.scales.x.type = "logarithmic";
+    options.scales.x.title = { display: true, text: "概念30天销量（对数轴）", color: "#687b8b" };
+    options.scales.x.ticks = {
+      color: "#687b8b",
+      callback: (value) => compactFormatter.format(Number(value)),
+    };
+    options.scales.y.title = { display: true, text: "概念达人数量（对数轴）", color: "#687b8b" };
+
+    createChart("chart-concept-bubble", {
+      type: "bubble",
+      data: { datasets },
+      options,
+    });
+  }
+
+  function renderHeatmap() {
+    const metric = byId("heatmap-metric").value;
+    const metricLabels = {
+      total_sale_30d_cnt: "30天销量",
+      total_ifl_cnt: "达人",
+      total_video_cnt: "视频",
+      total_live_cnt: "直播",
+    };
+    const markets = signalMarkets();
+    const pools = Object.keys(poolLabels);
+    const values = markets.flatMap((market) => pools.map(
+      (pool) => sumField(productsForCell(market, pool), metric)
+    ));
+    const maxValue = Math.max(...values, 1);
+
+    let heatmap = '<div class="heatmap-label"></div>' +
+      pools.map((pool) => '<div class="heatmap-label">' + text(poolLabel(pool)) + "</div>").join("");
+    markets.forEach((market) => {
+      heatmap += '<div class="heatmap-label market-label">' + text(market) + "</div>";
+      pools.forEach((pool) => {
+        const value = sumField(productsForCell(market, pool), metric);
+        const intensity = Math.sqrt(value / maxValue);
+        const alpha = 0.08 + intensity * 0.82;
+        const color = alpha > 0.6 ? "#ffffff" : "#163247";
+        heatmap += '<div class="heatmap-cell" style="background:rgba(15,158,149,' +
+          alpha.toFixed(3) + ");color:" + color + '">' +
+          "<strong>" + fmt(value) + "</strong><span>" + text(metricLabels[metric]) + "</span></div>";
+      });
+    });
+    byId("market-pool-heatmap").innerHTML = heatmap;
+
+    const rows = markets.map((market) => {
+      const poolValues = pools.map((pool) => sumField(productsForCell(market, pool), metric));
+      return [text(market), ...poolValues.map(fmt), fmt(poolValues.reduce((sum, value) => sum + value, 0))];
+    });
+    const totals = pools.map((pool) => markets.reduce(
+      (sum, market) => sum + sumField(productsForCell(market, pool), metric), 0
+    ));
+    rows.push(["合计", ...totals.map(fmt), fmt(totals.reduce((sum, value) => sum + value, 0))]);
+    renderDataTable("market-pool-table",
+      ["市场", ...pools.map((pool) => poolLabel(pool)), "合计 · " + metricLabels[metric]],
+      rows
+    );
+  }
+
+  function renderMomentumTable() {
+    const products = report.products
+      .map((product) => {
+        const sale7 = asNumber(product.total_sale_7d_cnt);
+        const sale30 = asNumber(product.total_sale_30d_cnt);
+        const weeklyBaseline = sale30 > 0 ? sale30 / 30 * 7 : 0;
+        return {
+          ...product,
+          momentumRatio: weeklyBaseline > 0 ? sale7 / weeklyBaseline : 0,
+        };
+      })
+      .filter((product) => asNumber(product.total_sale_30d_cnt) >= 100 && asNumber(product.total_sale_7d_cnt) > 0)
+      .sort((a, b) => b.momentumRatio - a.momentumRatio)
+      .slice(0, 20);
+
+    byId("momentum-table").innerHTML = products.length ? products.map((product, index) => (
+      "<tr>" +
+      "<td>" + fmt(index + 1) + "</td>" +
+      '<td><span class="region-pill">' + text(product.source_region) + "</span></td>" +
+      "<td>" + text(product.product_concept) + "</td>" +
+      "<td>" + fmt(product.total_sale_7d_cnt) + "</td>" +
+      "<td>" + fmt(product.total_sale_30d_cnt) + "</td>" +
+      '<td><span class="momentum-ratio">' + fmtDecimal(product.momentumRatio) + "×</span></td>" +
+      "<td>" + fmt(product.total_ifl_cnt) + "</td>" +
+      "<td>" + fmt(product.total_video_cnt) + "</td>" +
+      "<td>" + decisionBadge(product.conclusion) + "</td>" +
+      "</tr>"
+    )).join("") : '<tr class="empty-row"><td colspan="9">当前没有可计算动能的商品</td></tr>';
+  }
+
+  function renderVisualizations() {
+    byId("visual-product-count").textContent = fmt(report.meta.product_count) + " 个合规商品";
+    const marketRows = renderMarketSalesChart();
+    renderPeriodSalesChart(marketRows);
+    renderConclusionChart();
+    renderDistributionChart();
+    renderMarketConclusionChart();
+    renderTopConceptsChart();
+    renderConceptBubbleChart();
+    renderHeatmap();
+    renderMomentumTable();
+
+    if (!window.Chart) {
+      document.querySelectorAll(".chart-canvas").forEach((container) => {
+        container.innerHTML = '<p class="chart-error">图表组件暂时无法加载，精确数据仍可在下方表格查看。</p>';
+      });
+    }
+  }
 
   function renderSummary() {
     const values = [
@@ -344,6 +838,7 @@
     ["product-search", "product-market", "product-pool", "product-conclusion", "product-sort"].forEach((id) => {
       byId(id).addEventListener(id === "product-search" ? "input" : "change", renderProducts);
     });
+    byId("heatmap-metric").addEventListener("change", renderHeatmap);
 
     byId("concept-table").addEventListener("click", (event) => {
       const row = event.target.closest("tr[data-concept]");
@@ -401,6 +896,7 @@
       renderSummary();
       renderUmbrellaProof();
       renderCoverage();
+      renderVisualizations();
       renderConcepts();
       renderProducts();
       bindEvents();

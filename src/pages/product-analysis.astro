@@ -22,6 +22,7 @@ const pageDescription = "Evidence-first TikTok Shop product intelligence using r
     <title>{pageTitle}</title>
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="/product-analysis.css">
+    <script is:inline src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
     <script is:inline src="/script.js" defer></script>
     <script is:inline src="/product-analysis.js" defer></script>
   </head>
@@ -122,6 +123,153 @@ const pageDescription = "Evidence-first TikTok Shop product intelligence using r
               <p>没有采集到的市场明确标记“待采集”，不会用估算值补齐。</p>
             </div>
             <div class="market-coverage" id="market-coverage"></div>
+          </section>
+
+          <section class="analysis-section visualization-section" aria-labelledby="visualization-title">
+            <div class="analysis-heading">
+              <div>
+                <p class="analysis-label">可视化</p>
+                <h2 id="visualization-title">销量、趋势与竞争结构</h2>
+              </div>
+              <p>图表与下方表格使用同一份真实数据；悬停查看精确值，表格保留完整数字。</p>
+            </div>
+
+            <div class="chart-layout">
+              <article class="chart-panel chart-panel-wide">
+                <header>
+                  <div>
+                    <p>市场对比</p>
+                    <h3>30天销量柱状图 × 达人折线</h3>
+                  </div>
+                  <span>商品样本汇总</span>
+                </header>
+                <div class="chart-canvas chart-canvas-tall">
+                  <canvas id="chart-market-sales" role="img" aria-label="各市场30天销量柱状图与达人数量折线图"></canvas>
+                </div>
+                <div class="chart-table-wrap" id="market-sales-table"></div>
+              </article>
+
+              <article class="chart-panel">
+                <header>
+                  <div>
+                    <p>决策分布</p>
+                    <h3>最终结论饼图</h3>
+                  </div>
+                  <span id="visual-product-count">正在加载</span>
+                </header>
+                <div class="chart-canvas">
+                  <canvas id="chart-conclusions" role="img" aria-label="商品最终结论分布饼图"></canvas>
+                </div>
+              </article>
+
+              <article class="chart-panel chart-panel-wide">
+                <header>
+                  <div>
+                    <p>销量周期</p>
+                    <h3>7 / 15 / 30 天累计销量趋势</h3>
+                  </div>
+                  <span>按信号市场分线</span>
+                </header>
+                <div class="chart-canvas chart-canvas-tall">
+                  <canvas id="chart-period-sales" role="img" aria-label="各市场7天15天30天累计销量折线图"></canvas>
+                </div>
+                <div class="chart-table-wrap" id="period-sales-table"></div>
+              </article>
+
+              <article class="chart-panel">
+                <header>
+                  <div>
+                    <p>内容结构</p>
+                    <h3>分发类型环形图</h3>
+                  </div>
+                  <span>达人 / 视频 / 直播</span>
+                </header>
+                <div class="chart-canvas">
+                  <canvas id="chart-distribution" role="img" aria-label="商品内容分发类型环形图"></canvas>
+                </div>
+              </article>
+
+              <article class="chart-panel chart-panel-wide">
+                <header>
+                  <div>
+                    <p>市场差异</p>
+                    <h3>各市场结论堆叠柱状图</h3>
+                  </div>
+                  <span>直接比较可测与红海占比</span>
+                </header>
+                <div class="chart-canvas chart-canvas-tall">
+                  <canvas id="chart-market-conclusions" role="img" aria-label="各市场商品结论堆叠柱状图"></canvas>
+                </div>
+              </article>
+
+              <article class="chart-panel">
+                <header>
+                  <div>
+                    <p>头部概念</p>
+                    <h3>30天销量 × 达人规模</h3>
+                  </div>
+                  <span>Top 10 产品概念</span>
+                </header>
+                <div class="chart-canvas chart-canvas-tall">
+                  <canvas id="chart-top-concepts" role="img" aria-label="头部产品概念30天销量与达人数量叠加图"></canvas>
+                </div>
+              </article>
+
+              <article class="chart-panel chart-panel-full">
+                <header>
+                  <div>
+                    <p>真实竞争矩阵</p>
+                    <h3>概念销量 × 达人 × 视频气泡图</h3>
+                  </div>
+                  <span>气泡大小代表视频量</span>
+                </header>
+                <div class="chart-canvas chart-canvas-scatter">
+                  <canvas id="chart-concept-bubble" role="img" aria-label="产品概念销量达人视频气泡图"></canvas>
+                </div>
+              </article>
+            </div>
+
+            <div class="heatmap-block">
+              <header class="heatmap-heading">
+                <div>
+                  <p>市场 × 赛道</p>
+                  <h3>真实指标热力图与交叉表</h3>
+                </div>
+                <label>
+                  <span>显示指标</span>
+                  <select id="heatmap-metric">
+                    <option value="total_sale_30d_cnt">30天销量</option>
+                    <option value="total_ifl_cnt">达人数量</option>
+                    <option value="total_video_cnt">视频数量</option>
+                    <option value="total_live_cnt">直播数量</option>
+                  </select>
+                </label>
+              </header>
+              <div class="market-pool-heatmap" id="market-pool-heatmap" aria-label="市场与赛道指标热力图"></div>
+              <div class="heatmap-legend" aria-hidden="true"><span>低</span><i></i><span>高</span></div>
+              <div class="chart-table-wrap crosstab-wrap" id="market-pool-table"></div>
+            </div>
+
+            <div class="momentum-block">
+              <header>
+                <div>
+                  <p>近期动能</p>
+                  <h3>近7天销量相对30天周均</h3>
+                </div>
+                <span>按真实销量比率排序，不使用趋势分</span>
+              </header>
+              <div class="evidence-table-wrap momentum-table-wrap">
+                <table class="evidence-table momentum-table">
+                  <thead>
+                    <tr>
+                      <th>#</th><th>市场</th><th>产品概念</th><th>7天销量</th>
+                      <th>30天销量</th><th>相对周均</th><th>达人</th><th>视频</th><th>结论</th>
+                    </tr>
+                  </thead>
+                  <tbody id="momentum-table"></tbody>
+                </table>
+              </div>
+            </div>
           </section>
 
           <section class="analysis-section" aria-labelledby="concept-title">

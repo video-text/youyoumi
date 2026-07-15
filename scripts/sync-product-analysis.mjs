@@ -8,25 +8,38 @@ const outputPath = path.resolve(root, "public", "data", "product-analysis.json")
 const source = JSON.parse(await readFile(sourcePath, "utf8"));
 
 const excludedPools = new Set(["fashion_basics"]);
-const womenswearPattern = /women'?s\s+(?:clothing|dress|top|bottom|suit|underwear|lingerie|skirt|blouse)|womenswear|女装|连衣裙|女式(?:上衣|裤|裙)|女士服装/i;
-const liquidPattern = /\b(?:liquid|serum|oil|lotion|spray|perfume|fragrance|toner|shampoo|conditioner|essence|juice|drink|beverage)\b|液体|精华液|精油|香水|喷雾|洗发水|护发素|饮料|果汁|水剂/i;
+const womenswearPattern = /women'?s\s+(?:clothing|dress|top|bottom|suit|underwear|lingerie|skirt|blouse)|womenswear|女装|连衣裙|女式(?:上衣|裤|裙)|女士服装|\b(?:vay|dam|ao nu|quan nu|do lot nu|thoi trang nu)\b|(?:เสื้อผ้าผู้หญิง|ชุดผู้หญิง|เดรสผู้หญิง|ชุดชั้นในผู้หญิง)/i;
+const liquidPattern = /\b(?:liquid|serum|oil|lotion|spray|perfume|fragrance|toner|shampoo|conditioner|essence|juice|drink|beverage|cream|gel|mist|body wash|cleanser)\b|液体|精华液|精油|香水|喷雾|洗发水|护发素|饮料|果汁|水剂|\b(?:nuoc hoa|nuoc giat|nuoc xa|nuoc rua|nuoc tay|dung dich|tinh chat|son tint|xit toc|sua tam|sua rua|sua duong|dau goi|dau xa|tinh dau)\b|(?:น้ำยา|น้ำหอม|เซรั่ม|ครีม|เจล|สเปรย์|น้ำมัน|โลชั่น|แชมพู|ลิควิด)|\b\d+(?:[.,]\d+)?\s*(?:ml|milliliters?|fl\.?\s*oz)\b/i;
+const strongLiquidPattern = /\b(?:liquid|serum|lotion|spray|perfume|fragrance|toner|shampoo|conditioner|essence|juice|drink|beverage|body wash|cleanser|nuoc hoa|nuoc giat|nuoc xa|nuoc rua|nuoc tay|dung dich|tinh chat|son tint|xit toc|sua tam|sua rua|sua duong|dau goi|dau xa|tinh dau)\b|液体|精华液|精油|香水|喷雾|洗发水|护发素|饮料|果汁|水剂|(?:น้ำยา|น้ำหอม|เซรั่ม|โลชั่น|แชมพู|ลิควิด)|\b\d+(?:[.,]\d+)?\s*(?:ml|milliliters?|fl\.?\s*oz)\b/i;
+const solidFormOverridePattern = /\b(?:powder|tablet|tablets|capsule|capsules|bar soap|solid perfume|wax|balm|patch|patches|strip|strips|sheet mask|brush|applicator|pencil|stick|choi|co quet|sap wax)\b|粉|片|膏|蜡|棒|刷|贴|膜/i;
 
 const asNumber = (value) => {
   const number = Number(value ?? 0);
   return Number.isFinite(number) ? number : 0;
 };
 
-const textForFilter = (product) => [
+const normalizeForFilter = (value) => Array.from(String(value || "").normalize("NFC"))
+  .map((char) => /\p{Script=Latin}/u.test(char)
+    ? char.normalize("NFD").replace(/\p{Mark}/gu, "")
+    : char)
+  .join("")
+  .toLowerCase()
+  .replace(/\s+/g, " ")
+  .trim();
+
+const textForFilter = (product) => normalizeForFilter([
   product.product_concept,
   product.product_name_original,
   product.product_name,
   product.pool_name,
-].filter(Boolean).join(" ");
+].filter(Boolean).join(" "));
 
 const isEligibleProduct = (product) => {
   if (excludedPools.has(product.pool_key)) return false;
   const text = textForFilter(product);
-  return !womenswearPattern.test(text) && !liquidPattern.test(text);
+  if (womenswearPattern.test(text)) return false;
+  if (liquidPattern.test(text) && (strongLiquidPattern.test(text) || !solidFormOverridePattern.test(text))) return false;
+  return true;
 };
 
 const productFields = [
