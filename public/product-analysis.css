@@ -985,6 +985,98 @@
   font-size: 1.02rem;
 }
 
+.evidence-resources {
+  padding: 16px;
+  background: #f2fbfa;
+  border: 1px solid #cdebe7;
+  border-radius: 12px;
+}
+
+.evidence-heading,
+.evidence-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.evidence-heading h3 {
+  margin: 0;
+}
+
+.evidence-note {
+  margin: 8px 0 14px;
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.evidence-resources h4 {
+  margin: 14px 0 7px;
+  color: var(--ink);
+  font-size: 0.82rem;
+}
+
+.evidence-grid {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  list-style: none;
+}
+
+.evidence-card {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  padding: 11px;
+  background: #fff;
+  border: 1px solid #dce9eb;
+  border-radius: 10px;
+}
+
+.evidence-card strong {
+  overflow-wrap: anywhere;
+  font-size: 0.78rem;
+}
+
+.evidence-card span {
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.evidence-media {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  background: #edf3f5;
+  border-radius: 8px;
+}
+
+.evidence-link {
+  display: inline-flex;
+  width: fit-content;
+  padding: 5px 9px;
+  align-items: center;
+  color: var(--cyan-dark);
+  background: #e6f7f5;
+  border: 1px solid #bfe7e2;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.evidence-link:hover {
+  color: #fff;
+  background: var(--cyan-dark);
+}
+
+.evidence-link-primary {
+  color: #fff;
+  background: var(--cyan-dark);
+}
+
 .detail-metrics {
   display: grid;
   gap: 8px;
@@ -1044,6 +1136,10 @@
   font-size: 0.72rem;
 }
 
+.match-list .evidence-link {
+  margin-top: 8px;
+}
+
 @media (max-width: 1080px) {
   .analysis-kpis,
   .market-coverage {
@@ -1068,6 +1164,10 @@
 }
 
 @media (max-width: 860px) {
+  .evidence-grid {
+    grid-template-columns: 1fr;
+  }
+
   .analysis-hero {
     padding-top: 138px;
   }

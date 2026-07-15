@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import os
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from io import BytesIO
 from pathlib import Path
 from typing import Any
@@ -118,24 +119,35 @@ def main() -> None:
         resolved.update(_resolve_batch(session, batch))
         time.sleep(0.75)
 
-    downloaded_count = 0
-    failed_count = 0
-    for source_url, matching_products in products_by_source.items():
+    def download_source(source_url: str, matching_products: list[dict[str, Any]]) -> tuple[int, int]:
         temporary_url = resolved.get(source_url)
         if not temporary_url:
-            failed_count += len(matching_products)
-            continue
+            return 0, len(matching_products)
         try:
             image_response = requests.get(temporary_url, timeout=(15, 90))
             image_response.raise_for_status()
+            downloaded = 0
             for product in matching_products:
                 local_path, public_path = _local_path(product)
                 _save_webp(image_response.content, local_path)
                 product["cover_source_url"] = source_url
                 product["cover_url"] = public_path
-                downloaded_count += 1
+                downloaded += 1
+            return downloaded, 0
         except (requests.RequestException, OSError, UnidentifiedImageError):
-            failed_count += len(matching_products)
+            return 0, len(matching_products)
+
+    downloaded_count = 0
+    failed_count = 0
+    with ThreadPoolExecutor(max_workers=8) as executor:
+        futures = [
+            executor.submit(download_source, source_url, matching_products)
+            for source_url, matching_products in products_by_source.items()
+        ]
+        for future in as_completed(futures):
+            downloaded, failed = future.result()
+            downloaded_count += downloaded
+            failed_count += failed
 
     products_by_id = {str(product.get("product_id")): product for product in products}
     for concept in payload.get("concepts", []):

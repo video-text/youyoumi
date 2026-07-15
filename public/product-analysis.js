@@ -12,9 +12,11 @@
   });
 
   const poolLabels = {
-    beauty: "美妆个护（非液体）",
-    home_kitchen: "家居厨房",
+    beauty_tools: "美妆工具（非液体）",
+    pet_supplies: "宠物用品",
+    tools_hardware: "五金工具",
     electronics_accessories: "电子配件",
+    small_appliances: "小家电",
   };
 
   let report = null;
@@ -54,13 +56,67 @@
   const productImage = (product, size = "thumb") => {
     const url = String(product?.cover_url || "").trim();
     const classes = "product-image product-image-" + size;
-    if (!/^https:\/\//i.test(url)) {
+    if (!(/^https:\/\//i.test(url) || url.startsWith("/product-images/"))) {
       return '<span class="' + classes + ' product-image-missing" aria-label="暂无商品图片">无图</span>';
     }
     return '<span class="' + classes + '"><img src="' + escapeHtml(url) +
       '" alt="' + escapeHtml(product.product_concept || "商品图片") +
       '" loading="lazy" decoding="async" referrerpolicy="no-referrer"></span>';
   };
+  const safeHttpsUrl = (value) => {
+    const url = String(value || "").trim();
+    return /^https:\/\//i.test(url) ? url : "";
+  };
+  const evidenceLink = (url, label, className = "evidence-link") => {
+    const safeUrl = safeHttpsUrl(url);
+    if (!safeUrl) return "";
+    return '<a class="' + className + '" href="' + escapeHtml(safeUrl) +
+      '" target="_blank" rel="noopener noreferrer">' + escapeHtml(label) + "</a>";
+  };
+  const evidenceImage = (url, alt) => {
+    const safeUrl = safeHttpsUrl(url);
+    if (!safeUrl) return "";
+    return '<img class="evidence-media" src="' + escapeHtml(safeUrl) + '" alt="' +
+      escapeHtml(alt || "证据图片") + '" loading="lazy" decoding="async" referrerpolicy="no-referrer">';
+  };
+
+  function renderAssociationEvidence(product) {
+    const influencers = Array.isArray(product.influencer_samples) ? product.influencer_samples : [];
+    const videos = Array.isArray(product.video_samples) ? product.video_samples : [];
+    const lives = Array.isArray(product.live_samples) ? product.live_samples : [];
+    const productLink = evidenceLink(product.product_url, "查看商品原页", "evidence-link evidence-link-primary");
+    const sampleNote = product.association_sampled
+      ? "以下为本轮实际采集样本，可点击查看。"
+      : "该商品保留了完整总量数据；为节省额度未深采达人、视频与直播样本。";
+
+    const influencerCards = influencers.map((item) => (
+      '<li class="evidence-card">' + evidenceImage(item.avatar, item.nick_name || "达人头像") +
+      "<strong>" + text(item.nick_name || item.user_id) + "</strong>" +
+      '<span>粉丝 ' + fmt(item.total_followers_cnt) + " · 带货销量 " + fmt(item.per_product_ifl_sale_cnt) + "</span>" +
+      '<span>观看 ' + fmt(item.total_views_cnt) + " · 带货GMV " + fmtDecimal(item.per_product_ifl_gmv_amt) + "</span>" +
+      evidenceLink(item.echotik_url, "查看达人") + "</li>"
+    )).join("");
+    const videoCards = videos.map((item) => (
+      '<li class="evidence-card">' + evidenceImage(item.reflow_cover, item.video_desc || "视频封面") +
+      "<strong>" + text(shortLabel(item.video_desc || ("视频 " + item.video_id), 44)) + "</strong>" +
+      '<span>播放 ' + fmt(item.total_views_cnt) + " · 点赞 " + fmt(item.total_digg_cnt) + " · 评论 " + fmt(item.total_comments_cnt) + "</span>" +
+      '<span>带货销量 ' + fmt(item.total_video_sale_cnt) + " · 分享 " + fmt(item.total_shares_cnt) + " · 收藏 " + fmt(item.total_favorites_cnt) + "</span>" +
+      '<div class="evidence-actions">' + evidenceLink(item.echotik_url, "查看视频") +
+      evidenceLink(item.play_addr, "打开源视频") + "</div></li>"
+    )).join("");
+    const liveCards = lives.map((item) => (
+      '<li class="evidence-card"><strong>' + text(item.seller_name || ("直播 " + item.room_id)) + "</strong>" +
+      '<span>最高观看 ' + fmt(item.max_views_cnt) + " · 开播 " + text(item.create_time) + "</span>" +
+      evidenceLink(item.echotik_url, "查看直播") + "</li>"
+    )).join("");
+
+    return '<section class="dialog-section evidence-resources"><div class="evidence-heading"><h3>商品证据与可跳转资源</h3>' +
+      productLink + '</div><p class="evidence-note">' + escapeHtml(sampleNote) + "</p>" +
+      (influencerCards ? '<h4>达人样本</h4><ul class="evidence-grid">' + influencerCards + "</ul>" : "") +
+      (videoCards ? '<h4>视频样本</h4><ul class="evidence-grid">' + videoCards + "</ul>" : "") +
+      (liveCards ? '<h4>直播样本</h4><ul class="evidence-grid">' + liveCards + "</ul>" : "") +
+      "</section>";
+  }
 
   const decisionClass = (conclusion) => {
     const value = String(conclusion || "");
@@ -417,9 +473,11 @@
   function renderConceptBubbleChart() {
     const pools = [...new Set(report.concepts.map((concept) => concept.pool_key))];
     const colors = {
-      beauty: chartColors.rose,
-      home_kitchen: chartColors.teal,
+      beauty_tools: chartColors.rose,
+      pet_supplies: chartColors.teal,
+      tools_hardware: chartColors.amber,
       electronics_accessories: chartColors.blue,
+      small_appliances: chartColors.violet,
     };
     const datasets = pools.map((pool) => ({
       label: poolLabel(pool),
@@ -732,7 +790,8 @@
         "<span>累计销量 " + fmt(match.total_sale_cnt) + "</span>" +
         "<span>达人 " + fmt(match.total_ifl_cnt) + "</span>" +
         "<span>视频 " + fmt(match.total_video_cnt) + "</span>" +
-        "<span>价格 " + fmtDecimal(match.spu_avg_price) + "</span></li>"
+        "<span>价格 " + fmtDecimal(match.spu_avg_price) + "</span>" +
+        evidenceLink(match.product_id ? "https://echotik.live/products/" + match.product_id : "", "查看巴西商品") + "</li>"
       )).join("") +
       "</ul></section>";
   }
@@ -754,6 +813,7 @@
       "<p><strong>竞争证据：</strong>" + text(product.competition_evidence) + "</p>" +
       "<p><strong>建议动作：</strong>" + text(product.recommended_action) + "</p>" +
       "</div>" +
+      renderAssociationEvidence(product) +
       metricSection("商品身份", [
         ["商品 ID", text(product.product_id)],
         ["卖家 ID", text(product.seller_id)],

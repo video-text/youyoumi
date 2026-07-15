@@ -43,7 +43,7 @@ const isEligibleProduct = (product) => {
 };
 
 const productFields = [
-  "product_id", "cover_url", "product_concept", "product_concept_key", "product_name_original",
+  "product_id", "product_url", "cover_url", "product_concept", "product_concept_key", "product_name_original",
   "source_region", "pool_key", "pool_name", "source_rank", "seller_id",
   "category_id", "category_l2_id", "category_l3_id", "min_price", "max_price",
   "spu_avg_price", "product_rating", "review_count", "total_sale_cnt",
@@ -56,7 +56,8 @@ const productFields = [
   "top_influencer_product_sales", "video_sample_count", "video_views_in_sample",
   "video_likes_in_sample", "video_comments_in_sample", "video_sale_in_sample",
   "top_video_views", "avg_video_views", "top_video_id", "live_sample_count",
-  "top_live_views", "content_tag", "distribution_type", "concept_total_sale_cnt",
+  "top_live_views", "association_sampled", "influencer_samples", "video_samples", "live_samples",
+  "content_tag", "distribution_type", "concept_total_sale_cnt",
   "concept_total_sale_30d_cnt", "concept_max_total_sale_cnt",
   "concept_max_total_sale_30d_cnt", "concept_total_ifl_cnt",
   "concept_total_video_cnt", "concept_total_live_cnt", "concept_total_review_count",
