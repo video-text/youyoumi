@@ -51,6 +51,16 @@
     return value === true || value === "True" || value === "true" ? "是" : "否";
   };
   const poolLabel = (key, fallback) => poolLabels[key] || fallback || key || "未分类";
+  const productImage = (product, size = "thumb") => {
+    const url = String(product?.cover_url || "").trim();
+    const classes = "product-image product-image-" + size;
+    if (!/^https:\/\//i.test(url)) {
+      return '<span class="' + classes + ' product-image-missing" aria-label="暂无商品图片">无图</span>';
+    }
+    return '<span class="' + classes + '"><img src="' + escapeHtml(url) +
+      '" alt="' + escapeHtml(product.product_concept || "商品图片") +
+      '" loading="lazy" decoding="async" referrerpolicy="no-referrer"></span>';
+  };
 
   const decisionClass = (conclusion) => {
     const value = String(conclusion || "");
@@ -646,7 +656,8 @@
     byId("concept-count").textContent = "显示 " + fmt(concepts.length) + " / " + fmt(report.concepts.length) + " 个概念";
     byId("concept-table").innerHTML = concepts.length ? concepts.map((concept) => (
       '<tr data-concept="' + escapeHtml(concept.product_concept) + '" title="点击查看该概念的商品">' +
-      "<td><strong>" + text(concept.product_concept) + "</strong></td>" +
+      '<td><div class="concept-identity">' + productImage(concept) +
+      "<strong>" + text(concept.product_concept) + "</strong></div></td>" +
       '<td><span class="pool-pill">' + text(poolLabel(concept.pool_key, concept.pool_name)) + "</span></td>" +
       "<td>" + fmt(concept.listing_count) + "</td>" +
       "<td>" + fmt(concept.market_count) + " · " + text(concept.markets) + "</td>" +
@@ -685,6 +696,7 @@
       '<tr data-action="detail" data-product-id="' + text(product.product_id) + '" tabindex="0" title="点击查看完整真实数据">' +
       "<td>" + fmt(index + 1) + "</td>" +
       '<td><span class="region-pill">' + text(product.source_region) + "</span></td>" +
+      "<td>" + productImage(product) + "</td>" +
       "<td>" + text(product.product_concept) + "</td>" +
       '<td><span class="original-title" title="' + text(product.product_name_original) + '">' + text(product.product_name_original) + "</span></td>" +
       "<td>" + fmt(product.total_sale_7d_cnt) + "</td>" +
@@ -700,7 +712,7 @@
       "<td>" + fmt(product.concept_market_count) + "</td>" +
       "<td>" + decisionBadge(product.conclusion) + "</td>" +
       "</tr>"
-    )).join("") : '<tr class="empty-row"><td colspan="16">没有符合条件的商品</td></tr>';
+    )).join("") : '<tr class="empty-row"><td colspan="17">没有符合条件的商品</td></tr>';
   }
 
   function metricSection(title, items) {
@@ -730,11 +742,13 @@
     if (!product) return;
 
     byId("dialog-content").innerHTML =
+      '<div class="dialog-hero">' +
+      productImage(product, "large") +
       '<header class="dialog-header">' +
       '<span class="region-pill">' + text(product.source_region) + " · " + text(poolLabel(product.pool_key, product.pool_name)) + "</span>" +
       '<h2 id="dialog-title">' + text(product.product_concept) + "</h2>" +
       '<p class="dialog-original-title">' + text(product.product_name_original) + "</p>" +
-      "</header>" +
+      "</header></div>" +
       '<div class="dialog-decision">' +
       decisionBadge(product.conclusion) +
       "<p><strong>竞争证据：</strong>" + text(product.competition_evidence) + "</p>" +

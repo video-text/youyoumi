@@ -43,7 +43,7 @@ const isEligibleProduct = (product) => {
 };
 
 const productFields = [
-  "product_id", "product_concept", "product_concept_key", "product_name_original",
+  "product_id", "cover_url", "product_concept", "product_concept_key", "product_name_original",
   "source_region", "pool_key", "pool_name", "source_rank", "seller_id",
   "category_id", "category_l2_id", "category_l3_id", "min_price", "max_price",
   "spu_avg_price", "product_rating", "review_count", "total_sale_cnt",
@@ -84,6 +84,8 @@ for (const product of products) {
     conceptMap.set(key, {
       concept_key: key,
       product_concept: product.product_concept || "未归一产品",
+      cover_url: product.cover_url,
+      representative_product_id: product.product_id,
       pool_key: product.pool_key,
       pool_name: product.pool_name,
       listing_count: asNumber(product.concept_listing_count) || 1,
