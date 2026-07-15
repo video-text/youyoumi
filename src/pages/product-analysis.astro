@@ -1,0 +1,310 @@
+---
+import site from "../content/site.json";
+
+const pageTitle = "Product Intelligence | " + site.brandName;
+const pageDescription = "Evidence-first TikTok Shop product intelligence using real sales, creator, video, live, concept competition, and Brazil supply data.";
+---
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content={pageDescription}>
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#071a2b">
+    <link rel="canonical" href="https://youyoumi.asia/product-analysis/">
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" content={pageTitle}>
+    <meta property="og:description" content={pageDescription}>
+    <meta property="og:url" content="https://youyoumi.asia/product-analysis/">
+
+    <title>{pageTitle}</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/product-analysis.css">
+    <script is:inline src="/script.js" defer></script>
+    <script is:inline src="/product-analysis.js" defer></script>
+  </head>
+
+  <body class="analysis-page">
+    <a class="skip-link" href="#analysis-content">跳到分析内容</a>
+
+    <header class="site-header" id="site-header">
+      <div class="container nav-wrap">
+        <a class="brand" href="/" aria-label="Vielumi Global 首页">
+          <span class="brand-mark" aria-hidden="true">V</span>
+          <span>{site.brandName}</span>
+        </a>
+
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation">
+          <span class="sr-only">打开导航</span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <nav class="primary-nav" id="primary-navigation" aria-label="主导航">
+          <a href="/">Home</a>
+          <a href="/#about">About</a>
+          <a href="/#services">Services</a>
+          <a class="active" href="#analysis" aria-current="page">Product Intelligence</a>
+          <a href="/#contact">Contact</a>
+          <a href="/#privacy">Privacy</a>
+          <a href="/#terms">Terms</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="analysis-content">
+      <section class="analysis-hero" id="analysis" aria-labelledby="analysis-title">
+        <div class="analysis-grid" aria-hidden="true"></div>
+        <div class="container analysis-intro-grid">
+          <div>
+            <p class="analysis-kicker"><span></span> TikTok Shop Product Intelligence</p>
+            <h1 id="analysis-title">爆品不是一个分数，<em>是真实销量和竞争证据。</em></h1>
+            <p class="analysis-lead">
+              用真实销量、GMV、达人、视频、直播、评价与巴西供给数据判断机会。
+              长标题先归一为真正产品概念，再按同概念商品数和覆盖市场识别红海。
+            </p>
+            <div class="analysis-market-row" aria-label="分析市场">
+              <span>US</span><span>MX</span><span>GB</span><span>TH</span><span>VN</span>
+              <i aria-hidden="true">→</i><span class="validation-market">BR 验证</span>
+            </div>
+          </div>
+
+          <aside class="concept-proof" aria-labelledby="concept-proof-title">
+            <div class="proof-heading">
+              <span>概念竞争示例</span>
+              <strong id="concept-proof-title">折叠伞</strong>
+            </div>
+            <div class="proof-metrics" id="umbrella-proof" aria-live="polite">
+              <div><span>同概念商品</span><strong>—</strong></div>
+              <div><span>覆盖市场</span><strong>—</strong></div>
+              <div><span>30天销量</span><strong>—</strong></div>
+              <div><span>达人 / 视频</span><strong>—</strong></div>
+            </div>
+            <p id="umbrella-conclusion">正在读取真实报表数据…</p>
+          </aside>
+        </div>
+      </section>
+
+      <div class="analysis-dashboard">
+        <div class="container">
+          <div class="data-status" id="data-status" role="status" aria-live="polite">
+            <span class="status-dot"></span>
+            <p>正在加载 EchoTik 报表快照…</p>
+          </div>
+
+          <section class="analysis-section summary-section" aria-labelledby="summary-title">
+            <div class="analysis-heading">
+              <div>
+                <p class="analysis-label">总览</p>
+                <h2 id="summary-title">当前样本的真实数据</h2>
+              </div>
+              <p>每个数字都来自报表字段；不使用综合机会分替代原始证据。</p>
+            </div>
+            <div class="analysis-kpis" id="summary-kpis">
+              <article><span>商品样本</span><strong>—</strong><small>排除女装与液体</small></article>
+              <article><span>产品概念</span><strong>—</strong><small>长标题归一后去重</small></article>
+              <article><span>样本30天销量</span><strong>—</strong><small>候选商品合计</small></article>
+              <article><span>关联达人</span><strong>—</strong><small>商品详情字段合计</small></article>
+              <article><span>关联视频</span><strong>—</strong><small>商品详情字段合计</small></article>
+              <article><span>直播场次</span><strong>—</strong><small>商品详情字段合计</small></article>
+            </div>
+          </section>
+
+          <section class="analysis-section" aria-labelledby="coverage-title">
+            <div class="analysis-heading">
+              <div>
+                <p class="analysis-label">市场覆盖</p>
+                <h2 id="coverage-title">信号市场与巴西验证</h2>
+              </div>
+              <p>没有采集到的市场明确标记“待采集”，不会用估算值补齐。</p>
+            </div>
+            <div class="market-coverage" id="market-coverage"></div>
+          </section>
+
+          <section class="analysis-section" aria-labelledby="concept-title">
+            <div class="analysis-heading">
+              <div>
+                <p class="analysis-label">概念竞争</p>
+                <h2 id="concept-title">把长标题切成真正产品</h2>
+              </div>
+              <p>同一产品概念跨标题、跨市场合并，直接查看商品数、销量和内容分发规模。</p>
+            </div>
+
+            <div class="analysis-toolbar">
+              <label>
+                <span>搜索产品概念</span>
+                <input id="concept-search" type="search" placeholder="例如：折叠伞、便携风扇">
+              </label>
+              <label>
+                <span>赛道</span>
+                <select id="concept-pool"><option value="">全部赛道</option></select>
+              </label>
+              <label>
+                <span>排序</span>
+                <select id="concept-sort">
+                  <option value="sale_30d">30天销量</option>
+                  <option value="listing_count">同概念商品数</option>
+                  <option value="creators">达人数量</option>
+                  <option value="videos">视频数量</option>
+                </select>
+              </label>
+              <p class="result-count" id="concept-count">—</p>
+            </div>
+
+            <div class="evidence-table-wrap">
+              <table class="evidence-table concept-table">
+                <thead>
+                  <tr>
+                    <th>产品概念</th>
+                    <th>赛道</th>
+                    <th>同概念商品</th>
+                    <th>覆盖市场</th>
+                    <th>30天销量</th>
+                    <th>累计销量</th>
+                    <th>达人</th>
+                    <th>视频</th>
+                    <th>直播</th>
+                    <th>评价</th>
+                    <th>结论</th>
+                  </tr>
+                </thead>
+                <tbody id="concept-table"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="analysis-section" aria-labelledby="products-title">
+            <div class="analysis-heading">
+              <div>
+                <p class="analysis-label">商品证据</p>
+                <h2 id="products-title">逐商品真实销量、达人与内容数据</h2>
+              </div>
+              <p>点击任意商品可展开销量周期、达人样本、视频表现、概念竞争和巴西供给明细。</p>
+            </div>
+
+            <div class="analysis-toolbar product-toolbar">
+              <label class="search-wide">
+                <span>搜索概念 / 原始标题 / 商品 ID</span>
+                <input id="product-search" type="search" placeholder="输入产品或商品 ID">
+              </label>
+              <label>
+                <span>市场</span>
+                <select id="product-market"><option value="">全部市场</option></select>
+              </label>
+              <label>
+                <span>赛道</span>
+                <select id="product-pool"><option value="">全部赛道</option></select>
+              </label>
+              <label>
+                <span>结论</span>
+                <select id="product-conclusion"><option value="">全部结论</option></select>
+              </label>
+              <label>
+                <span>排序</span>
+                <select id="product-sort">
+                  <option value="total_sale_30d_cnt">30天销量</option>
+                  <option value="total_sale_cnt">累计销量</option>
+                  <option value="total_ifl_cnt">达人数量</option>
+                  <option value="total_video_cnt">视频数量</option>
+                  <option value="concept_listing_count">同概念商品数</option>
+                </select>
+              </label>
+              <p class="result-count" id="product-count">—</p>
+            </div>
+
+            <div class="evidence-table-wrap product-table-wrap">
+              <table class="evidence-table product-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>市场</th>
+                    <th>真正产品</th>
+                    <th>原始长标题</th>
+                    <th>7天销量</th>
+                    <th>15天销量</th>
+                    <th>30天销量</th>
+                    <th>累计销量</th>
+                    <th>30天GMV</th>
+                    <th>达人</th>
+                    <th>视频</th>
+                    <th>直播</th>
+                    <th>评价</th>
+                    <th>概念商品数</th>
+                    <th>概念市场数</th>
+                    <th>结论</th>
+                  </tr>
+                </thead>
+                <tbody id="product-table"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="analysis-section methodology-section" aria-labelledby="method-title">
+            <div class="analysis-heading">
+              <div>
+                <p class="analysis-label">口径</p>
+                <h2 id="method-title">证据优先的判断逻辑</h2>
+              </div>
+              <p>页面保留原始指标，结论只负责解释证据，不把不透明评分当成事实。</p>
+            </div>
+            <div class="method-grid">
+              <article>
+                <span>01</span>
+                <h3>市场信号</h3>
+                <p>美国、墨西哥、英国、泰国、越南作为信号市场，巴西作为供给与竞争验证市场。</p>
+              </article>
+              <article>
+                <span>02</span>
+                <h3>真实字段</h3>
+                <p>读取销量、GMV、达人、视频、直播、评价、趋势与巴西近似供给，不用合成分代替。</p>
+              </article>
+              <article>
+                <span>03</span>
+                <h3>产品归一</h3>
+                <p>先从营销长标题提取产品概念，再汇总同概念商品、覆盖市场和内容分发规模。</p>
+              </article>
+              <article>
+                <span>04</span>
+                <h3>硬性排除</h3>
+                <p>女装赛道与液体商品在同步阶段直接过滤，不进入候选概念和商品表。</p>
+              </article>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <dialog class="product-dialog" id="product-dialog" aria-labelledby="dialog-title">
+      <div class="dialog-shell">
+        <button class="dialog-close" id="dialog-close" type="button" aria-label="关闭商品明细">×</button>
+        <div id="dialog-content"></div>
+      </div>
+    </dialog>
+
+    <footer class="site-footer">
+      <div class="container footer-top">
+        <a class="brand brand-footer" href="/" aria-label="Vielumi Global 首页">
+          <span class="brand-mark" aria-hidden="true">V</span>
+          <span>{site.brandName}</span>
+        </a>
+        <nav class="footer-nav" aria-label="页脚导航">
+          <a href="/#about">About</a>
+          <a href="/#services">Services</a>
+          <a href="/product-analysis/">Product Intelligence</a>
+          <a href="/#contact">Contact</a>
+          <a href="/#privacy">Privacy Policy</a>
+          <a href="/#terms">Terms of Service</a>
+        </nav>
+      </div>
+      <div class="container footer-bottom">
+        <p>© <span id="current-year">2026</span> {site.brandName}. All rights reserved.</p>
+        <p>Cross-border e-commerce operation &amp; marketing technology.</p>
+      </div>
+    </footer>
+
+    <a class="back-to-top" href="#analysis" aria-label="回到顶部">↑</a>
+  </body>
+</html>
