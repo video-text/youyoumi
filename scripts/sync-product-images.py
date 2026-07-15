@@ -1,4 +1,4 @@
-"""Cache EchoTik product covers as stable, optimized site assets.
+"""Cache EchoTik product and evidence covers as stable site assets.
 
 EchoTik cover URLs are intentionally not public.  Its zero-credit batch cover
 endpoint returns 24-hour download URLs; this script resolves those URLs in
@@ -9,6 +9,7 @@ site so the published page does not depend on expiring links.
 from __future__ import annotations
 
 import json
+import hashlib
 import os
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -25,6 +26,7 @@ SITE_ROOT = Path(__file__).resolve().parents[1]
 WORKSPACE_ROOT = SITE_ROOT.parent
 DATA_PATH = SITE_ROOT / "public" / "data" / "product-analysis.json"
 IMAGE_DIR = SITE_ROOT / "public" / "product-images"
+EVIDENCE_IMAGE_DIR = SITE_ROOT / "public" / "evidence-images"
 ENV_PATH = WORKSPACE_ROOT / ".env"
 DOWNLOAD_ENDPOINT = "https://open.echotik.live/api/v3/echotik/batch/cover/download"
 SOURCE_HOST = "echosell-images.tos-ap-southeast-1.volces.com"
@@ -53,10 +55,16 @@ def _local_path(product: dict[str, Any]) -> tuple[Path, str]:
     return IMAGE_DIR / filename, f"/product-images/{filename}"
 
 
-def _save_webp(content: bytes, destination: Path) -> None:
+def _evidence_local_path(kind: str, source_url: str) -> tuple[Path, str]:
+    digest = hashlib.sha1(source_url.encode("utf-8")).hexdigest()[:20]
+    filename = f"{kind}-{digest}.webp"
+    return EVIDENCE_IMAGE_DIR / filename, f"/evidence-images/{filename}"
+
+
+def _save_webp(content: bytes, destination: Path, max_size: int = 720) -> None:
     with Image.open(BytesIO(content)) as opened:
         image = ImageOps.exif_transpose(opened)
-        image.thumbnail((720, 720), Image.Resampling.LANCZOS)
+        image.thumbnail((max_size, max_size), Image.Resampling.LANCZOS)
         if image.mode not in ("RGB", "RGBA"):
             image = image.convert("RGBA" if "transparency" in image.info else "RGB")
         image.save(destination, "WEBP", quality=82, method=6)
@@ -95,6 +103,7 @@ def main() -> None:
     payload = json.loads(DATA_PATH.read_text(encoding="utf-8"))
     products: list[dict[str, Any]] = payload.get("products", [])
     IMAGE_DIR.mkdir(parents=True, exist_ok=True)
+    EVIDENCE_IMAGE_DIR.mkdir(parents=True, exist_ok=True)
 
     products_by_source: dict[str, list[dict[str, Any]]] = {}
     cached_count = 0
@@ -157,10 +166,95 @@ def main() -> None:
     payload.setdefault("meta", {})["product_image_count"] = sum(
         1 for product in products if str(product.get("cover_url", "")).startswith("/product-images/")
     )
+
+    evidence_by_source: dict[str, list[tuple[dict[str, Any], str, str, str]]] = {}
+    evidence_reused = 0
+    for product in products:
+        evidence_groups = (
+            (product.get("influencer_samples", []), "avatar", "avatar_source_url", "creator"),
+            (product.get("video_samples", []), "reflow_cover", "reflow_cover_source_url", "video"),
+        )
+        for samples, display_field, source_field, kind in evidence_groups:
+            for sample in samples if isinstance(samples, list) else []:
+                source_url = str(sample.get(source_field) or sample.get(display_field) or "")
+                if not source_url.lower().startswith("https://"):
+                    sample[display_field] = ""
+                    continue
+                local_path, public_path = _evidence_local_path(kind, source_url)
+                sample[source_field] = source_url
+                if local_path.exists() and local_path.stat().st_size > 0:
+                    sample[display_field] = public_path
+                    evidence_reused += 1
+                    continue
+                evidence_by_source.setdefault(source_url, []).append(
+                    (sample, display_field, kind, public_path)
+                )
+
+    evidence_resolved: dict[str, str] = {}
+    restricted_sources = [source for source in evidence_by_source if SOURCE_HOST in source]
+    for batch in _chunks(restricted_sources, BATCH_SIZE):
+        evidence_resolved.update(_resolve_batch(session, batch))
+        time.sleep(0.75)
+
+    def download_evidence(
+        source_url: str,
+        matching_samples: list[tuple[dict[str, Any], str, str, str]],
+    ) -> tuple[int, int]:
+        temporary_url = evidence_resolved.get(source_url)
+        if SOURCE_HOST not in source_url:
+            temporary_url = source_url
+        if not temporary_url:
+            for sample, display_field, _kind, _public_path in matching_samples:
+                sample[display_field] = ""
+            return 0, len(matching_samples)
+        try:
+            image_response = requests.get(temporary_url, timeout=(15, 90))
+            image_response.raise_for_status()
+            sample, _display_field, kind, public_path = matching_samples[0]
+            local_path, _ = _evidence_local_path(kind, source_url)
+            _save_webp(image_response.content, local_path, max_size=480)
+            for sample, display_field, _kind, _public_path in matching_samples:
+                sample[display_field] = public_path
+            return len(matching_samples), 0
+        except (requests.RequestException, OSError, UnidentifiedImageError):
+            for sample, display_field, _kind, _public_path in matching_samples:
+                sample[display_field] = ""
+            return 0, len(matching_samples)
+
+    evidence_downloaded = 0
+    evidence_failed = 0
+    with ThreadPoolExecutor(max_workers=8) as executor:
+        futures = [
+            executor.submit(download_evidence, source_url, matching_samples)
+            for source_url, matching_samples in evidence_by_source.items()
+        ]
+        for future in as_completed(futures):
+            downloaded, failed = future.result()
+            evidence_downloaded += downloaded
+            evidence_failed += failed
+
+    meta = payload.setdefault("meta", {})
+    meta["creator_image_count"] = sum(
+        1
+        for product in products
+        for sample in product.get("influencer_samples", [])
+        if str(sample.get("avatar", "")).startswith("/evidence-images/")
+    )
+    meta["video_cover_count"] = sum(
+        1
+        for product in products
+        for sample in product.get("video_samples", [])
+        if str(sample.get("reflow_cover", "")).startswith("/evidence-images/")
+    )
     DATA_PATH.write_text(json.dumps(payload, ensure_ascii=False) + "\n", encoding="utf-8")
     print(
         f"Product images ready: {payload['meta']['product_image_count']}/{len(products)} "
         f"({downloaded_count} downloaded, {cached_count} reused, {failed_count} unavailable)"
+    )
+    print(
+        f"Evidence images ready: {meta['creator_image_count']} creator avatars + "
+        f"{meta['video_cover_count']} video covers "
+        f"({evidence_downloaded} linked, {evidence_reused} reused, {evidence_failed} unavailable)"
     )
 
 

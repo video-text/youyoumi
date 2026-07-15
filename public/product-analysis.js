@@ -74,10 +74,12 @@
       '" target="_blank" rel="noopener noreferrer">' + escapeHtml(label) + "</a>";
   };
   const evidenceImage = (url, alt) => {
-    const safeUrl = safeHttpsUrl(url);
+    const value = String(url || "").trim();
+    const safeUrl = /^https:\/\//i.test(value) || value.startsWith("/evidence-images/") ? value : "";
     if (!safeUrl) return "";
     return '<img class="evidence-media" src="' + escapeHtml(safeUrl) + '" alt="' +
-      escapeHtml(alt || "证据图片") + '" loading="lazy" decoding="async" referrerpolicy="no-referrer">';
+      escapeHtml(alt || "证据图片") + '" loading="lazy" decoding="async" referrerpolicy="no-referrer"' +
+      ' onerror="this.remove()">';
   };
 
   function renderAssociationEvidence(product) {
