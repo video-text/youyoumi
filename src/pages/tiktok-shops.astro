@@ -1,0 +1,132 @@
+---
+import site from "../content/site.json";
+import shopsData from "../data/tiktok-shops.json";
+
+const pageTitle = "TikTok Shop API 能力总览 | " + site.brandName;
+const pageDescription = "二店 MIOU 与三店 QUEJO 的 TikTok Shop Open API 可调用权限、接口与店铺摘要。";
+const shops = shopsData.shops;
+const endpoints = shopsData.endpoints;
+---
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content={pageDescription}>
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#071a2b">
+    <link rel="canonical" href="https://youyoumi.asia/tiktok-shops/">
+    <title>{pageTitle}</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/tiktok-shops.css">
+  </head>
+  <body class="shops-page">
+    <a class="skip-link" href="#content">跳到内容</a>
+
+    <header class="site-header" id="site-header">
+      <div class="container nav-wrap">
+        <a class="brand" href="/" aria-label="Vielumi Global 首页">
+          <span class="brand-mark" aria-hidden="true">V</span>
+          <span>{site.brandName}</span>
+        </a>
+        <nav class="primary-nav" id="primary-navigation" aria-label="主导航">
+          <a href="/">Home</a>
+          <a href="/product-analysis/">Product Intelligence</a>
+          <a class="active" href="/tiktok-shops/" aria-current="page">TikTok Shops</a>
+          <a href="/#contact">Contact</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="content">
+      <section class="shops-hero">
+        <div class="container">
+          <p class="eyebrow">TikTok Shop Partner Open API</p>
+          <h1>二店 / 三店可调用能力总览</h1>
+          <p class="lead">
+            汇总巴西本地店 <strong>MIOU（二店）</strong> 与 <strong>QUEJO（三店）</strong> 的授权 Scope、
+            可用业务接口与实时店铺摘要。页面不含 App Secret / Token / Cipher。
+          </p>
+          <p class="meta">数据更新：{shopsData.updated_at} · API：{shopsData.api_base}</p>
+        </div>
+      </section>
+
+      <section class="container shops-grid">
+        {shops.map((shop) => (
+          <article class="shop-card" id={shop.profile}>
+            <div class="shop-card-top">
+              <span class="badge">{shop.label}</span>
+              <h2>{shop.shop_name}</h2>
+              <p>{shop.seller_name} · {shop.region} · {shop.seller_type}</p>
+            </div>
+            <div class="stat-row">
+              <div><span class="n">{shop.product_total}</span><span class="l">商品</span></div>
+              <div><span class="n">{shop.order_total}</span><span class="l">订单</span></div>
+              <div><span class="n">{shop.scopes.length}</span><span class="l">Scopes</span></div>
+            </div>
+            <dl class="kv">
+              <div><dt>Shop Code</dt><dd>{shop.shop_code}</dd></div>
+              <div><dt>Shop ID</dt><dd>{shop.shop_id}</dd></div>
+              <div><dt>App Key</dt><dd>{shop.app_key}</dd></div>
+              <div><dt>Service ID</dt><dd>{shop.service_id || "—"}</dd></div>
+              <div><dt>CLI Profile</dt><dd><code>--profile {shop.profile === "default" ? "default" : "shop2"}</code></dd></div>
+            </dl>
+            <h3>仓库</h3>
+            <ul class="plain">
+              {shop.warehouses.map((w) => (
+                <li>
+                  <strong>{w.type}</strong>
+                  {w.is_default ? " · 默认销售仓" : ""}
+                  <br /><span class="muted">{w.id}</span>
+                </li>
+              ))}
+            </ul>
+            <h3>已授权 Scopes（{shop.scopes.length}）</h3>
+            <div class="scope-cloud">
+              {shop.scopes.map((s) => <code>{s}</code>)}
+            </div>
+          </article>
+        ))}
+      </section>
+
+      <section class="container endpoints">
+        <h2>可调用接口分组</h2>
+        <p class="section-lead">两店当前 Scope 基本一致，下列接口两边均可按权限调用。搜索类接口请把 <code>page_size</code> / <code>page_token</code> 放在 query，不要放 body。</p>
+        {endpoints.map((group) => (
+          <div class="endpoint-group">
+            <h3>{group.group}</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>方法</th><th>路径</th><th>说明</th><th>相关 Scope</th></tr>
+                </thead>
+                <tbody>
+                  {group.items.map((item) => (
+                    <tr>
+                      <td><span class="method">{item.method}</span></td>
+                      <td><code>{item.path}</code></td>
+                      <td>{item.desc}</td>
+                      <td><code>{item.scope}</code></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ))}
+      </section>
+
+      <section class="container cli-box">
+        <h2>本地调用示例</h2>
+        <pre>{shopsData.cli.join("\n")}</pre>
+        <p class="muted">完整凭证保存在本机 <code>.env</code> 与 <code>data/cache/tiktok_shop_tokens*.json</code>，不会上传到本站。</p>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <p>© {new Date().getFullYear()} {site.brandName}. Internal API reference.</p>
+      </div>
+    </footer>
+  </body>
+</html>

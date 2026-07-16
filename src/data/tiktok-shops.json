@@ -1,0 +1,166 @@
+{
+  "updated_at": "2026-07-16",
+  "note": "公开摘要：不含 App Secret / access_token / refresh_token / shop_cipher",
+  "api_base": "https://open-api.tiktokglobalshop.com",
+  "auth_base": "https://auth.tiktok-shops.com",
+  "shops": [
+    {
+      "label": "三店",
+      "profile": "default",
+      "shop_name": "QUEJO",
+      "shop_code": "BRLCRRLHFL",
+      "shop_id": "7494742915008005871",
+      "seller_name": "GOA COMERCIO",
+      "region": "BR",
+      "seller_type": "LOCAL",
+      "app_key": "6kk823skrl8ov",
+      "service_id": "7662198259080021768",
+      "product_total": 82,
+      "order_total": 103,
+      "warehouses": [
+        {
+          "id": "7659061817377031944",
+          "name": "Rua Soldado José de Andrade 141,Parque Novo Mundo",
+          "type": "SALES_WAREHOUSE",
+          "is_default": true
+        },
+        {
+          "id": "7659062107824310024",
+          "name": "Rua Soldado José de Andrade 141,Parque Novo Mundo",
+          "type": "RETURN_WAREHOUSE",
+          "is_default": false
+        }
+      ],
+      "scopes": [
+        "seller.product.basic",
+        "seller.product.write",
+        "seller.product.delete",
+        "serller.product.optimize",
+        "seller.global_product.info",
+        "seller.global_product.write",
+        "seller.global_product.delete",
+        "seller.global_product.category.info",
+        "seller.global_product.image_trans_task",
+        "seller.order.info",
+        "seller.logistics",
+        "seller.fulfillment.basic",
+        "seller.fulfillment.package.write",
+        "seller.delivery.status.write",
+        "seller.return_refund.basic",
+        "seller.shop.info",
+        "seller.authorization.info",
+        "seller.finance.info",
+        "seller.promotion.info",
+        "seller.promotion.write",
+        "seller.affiliate_collaboration.read",
+        "seller.affiliate_collaboration.write",
+        "seller.affiliate_messages.write",
+        "seller.creator_marketplace.read",
+        "data.shop_analytics.public.read",
+        "data.bestselling.public.read"
+      ]
+    },
+    {
+      "label": "二店",
+      "profile": "shop2",
+      "shop_name": "MIOU",
+      "shop_code": "BRLCY9LHHV",
+      "shop_id": "7494744754005772166",
+      "seller_name": "M R O S 3",
+      "region": "BR",
+      "seller_type": "LOCAL",
+      "app_key": "6kke5j88b7lqm",
+      "service_id": "",
+      "product_total": 50,
+      "order_total": 14,
+      "warehouses": [
+        {
+          "id": "7658335255687055124",
+          "name": "Rua Soldado José de Andrade 141,Parque Novo Mundo",
+          "type": "SALES_WAREHOUSE",
+          "is_default": true
+        },
+        {
+          "id": "7658335834785810196",
+          "name": "Rua Soldado José de Andrade 141,Parque Novo Mundo",
+          "type": "RETURN_WAREHOUSE",
+          "is_default": false
+        }
+      ],
+      "scopes": [
+        "seller.product.basic",
+        "seller.product.write",
+        "seller.product.delete",
+        "serller.product.optimize",
+        "seller.global_product.info",
+        "seller.global_product.write",
+        "seller.global_product.delete",
+        "seller.global_product.category.info",
+        "seller.global_product.image_trans_task",
+        "seller.order.info",
+        "seller.logistics",
+        "seller.fulfillment.basic",
+        "seller.fulfillment.package.write",
+        "seller.delivery.status.write",
+        "seller.return_refund.basic",
+        "seller.shop.info",
+        "seller.authorization.info",
+        "seller.finance.info",
+        "seller.promotion.info",
+        "seller.promotion.write",
+        "seller.affiliate_collaboration.read",
+        "seller.affiliate_collaboration.write",
+        "seller.affiliate_messages.write",
+        "seller.creator_marketplace.read",
+        "data.shop_analytics.public.read",
+        "data.bestselling.public.read"
+      ]
+    }
+  ],
+  "endpoints": [
+    {
+      "group": "授权 / 店铺",
+      "items": [
+        { "method": "GET", "path": "/authorization/202309/shops", "desc": "已授权店铺列表", "scope": "seller.authorization.info" },
+        { "method": "GET", "path": "/seller/202309/shops", "desc": "卖家店铺信息", "scope": "seller.shop.info" }
+      ]
+    },
+    {
+      "group": "商品",
+      "items": [
+        { "method": "POST", "path": "/product/202309/products/search", "desc": "搜索商品列表（page_size/page_token 放 query）", "scope": "seller.product.basic" },
+        { "method": "GET", "path": "/product/202309/products/{id}", "desc": "商品详情", "scope": "seller.product.basic" },
+        { "method": "POST", "path": "/product/202309/products", "desc": "创建本地商品", "scope": "seller.product.write" },
+        { "method": "POST", "path": "/product/202309/products/activate", "desc": "激活商品", "scope": "seller.product.write" },
+        { "method": "POST", "path": "/product/202309/images/upload", "desc": "上传商品图片（multipart data）", "scope": "seller.product.write" },
+        { "method": "POST", "path": "/product/202309/categories/recommend", "desc": "推荐类目", "scope": "seller.product.basic" },
+        { "method": "GET", "path": "/product/202309/categories/{id}/attributes", "desc": "类目属性", "scope": "seller.product.basic" },
+        { "method": "GET", "path": "/product/202309/categories/{id}/rules", "desc": "类目规则", "scope": "seller.product.basic" }
+      ]
+    },
+    {
+      "group": "订单 / 物流 / 履约",
+      "items": [
+        { "method": "POST", "path": "/order/202309/orders/search", "desc": "搜索订单", "scope": "seller.order.info" },
+        { "method": "GET", "path": "/logistics/202309/warehouses", "desc": "仓库列表（发品用 SALES_WAREHOUSE）", "scope": "seller.logistics" },
+        { "method": "—", "path": "fulfillment / package / delivery", "desc": "履约、包裹、配送状态相关接口", "scope": "seller.fulfillment.* / delivery.status.write" },
+        { "method": "—", "path": "return_refund", "desc": "退货退款基础接口", "scope": "seller.return_refund.basic" }
+      ]
+    },
+    {
+      "group": "营销 / 财务 / 达人 / 数据",
+      "items": [
+        { "method": "—", "path": "promotion", "desc": "促销活动读/写", "scope": "seller.promotion.info / write" },
+        { "method": "—", "path": "finance", "desc": "财务信息", "scope": "seller.finance.info" },
+        { "method": "—", "path": "affiliate / creator marketplace", "desc": "联盟协作、达人市场、私信", "scope": "seller.affiliate_* / creator_marketplace" },
+        { "method": "—", "path": "analytics / bestselling", "desc": "店铺分析与畅销数据（路径需按官方文档确认）", "scope": "data.shop_analytics / bestselling" }
+      ]
+    }
+  ],
+  "cli": [
+    "python scripts/tiktok_shop_auth.py shops",
+    "python scripts/tiktok_shop_auth.py --profile shop2 shops",
+    "python scripts/tiktok_shop_upload_from_excel.py --excel \"路径.xlsx\" --execute",
+    "python scripts/tiktok_shop_dashboard.py --port 8088"
+  ]
+}

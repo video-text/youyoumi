@@ -1,0 +1,252 @@
+.shops-page {
+  background:
+    radial-gradient(circle at top right, rgba(37, 212, 198, 0.12), transparent 30%),
+    linear-gradient(180deg, #f4f8fa 0%, #ffffff 40%);
+  min-height: 100vh;
+}
+
+.shops-hero {
+  padding: 120px 0 48px;
+}
+
+.shops-hero h1 {
+  margin: 0 0 14px;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.15;
+  color: var(--ink);
+}
+
+.shops-hero .lead {
+  max-width: 760px;
+  color: var(--ink-soft);
+  font-size: 1.05rem;
+}
+
+.shops-hero .meta,
+.muted {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.eyebrow {
+  color: var(--cyan-dark);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.82rem;
+}
+
+.shops-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+  padding-bottom: 40px;
+}
+
+.shop-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: var(--shadow);
+}
+
+.shop-card-top h2 {
+  margin: 8px 0 4px;
+  font-size: 1.8rem;
+}
+
+.shop-card-top p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.badge {
+  display: inline-block;
+  background: rgba(37, 212, 198, 0.14);
+  color: var(--cyan-dark);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.stat-row > div {
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 14px 12px;
+  text-align: center;
+}
+
+.stat-row .n {
+  display: block;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.stat-row .l {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.kv {
+  margin: 0 0 18px;
+}
+
+.kv > div {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.kv dt {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.kv dd {
+  margin: 0;
+  word-break: break-all;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.86rem;
+}
+
+.shop-card h3 {
+  margin: 18px 0 10px;
+  font-size: 1rem;
+}
+
+.plain {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--ink-soft);
+}
+
+.scope-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.scope-cloud code,
+.endpoints code,
+.cli-box code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.78rem;
+}
+
+.scope-cloud code {
+  background: var(--mint);
+  color: var(--navy);
+  border-radius: 8px;
+  padding: 4px 8px;
+}
+
+.endpoints {
+  padding-bottom: 28px;
+}
+
+.endpoints h2,
+.cli-box h2 {
+  margin: 0 0 10px;
+}
+
+.section-lead {
+  color: var(--ink-soft);
+  margin: 0 0 22px;
+}
+
+.endpoint-group {
+  margin-bottom: 22px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 18px;
+}
+
+.endpoint-group h3 {
+  margin: 0 0 12px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+th, td {
+  text-align: left;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+th {
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 0.82rem;
+}
+
+.method {
+  display: inline-block;
+  min-width: 52px;
+  text-align: center;
+  border-radius: 8px;
+  background: rgba(7, 26, 43, 0.08);
+  padding: 2px 8px;
+  font-weight: 700;
+  font-size: 0.78rem;
+}
+
+.cli-box {
+  margin-bottom: 60px;
+  background: var(--ink);
+  color: #e8f4f8;
+  border-radius: 24px;
+  padding: 24px;
+}
+
+.cli-box pre {
+  margin: 0 0 12px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  line-height: 1.7;
+}
+
+.cli-box .muted {
+  color: rgba(232, 244, 248, 0.72);
+}
+
+.site-footer {
+  padding: 24px 0 40px;
+  color: var(--muted);
+}
+
+@media (max-width: 900px) {
+  .shops-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .shops-hero {
+    padding-top: 100px;
+  }
+
+  .kv > div {
+    grid-template-columns: 1fr;
+  }
+}
