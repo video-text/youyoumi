@@ -1,11 +1,8 @@
 ---
 import site from "../content/site.json";
-import shopsData from "../data/tiktok-shops.json";
 
-const pageTitle = "TikTok Shop API 能力总览 | " + site.brandName;
-const pageDescription = "二店 MIOU 与三店 QUEJO 的 TikTok Shop Open API 可调用权限、接口与店铺摘要。";
-const shops = shopsData.shops;
-const endpoints = shopsData.endpoints;
+const pageTitle = "店铺数据看板 | " + site.brandName;
+const pageDescription = "二店 MIOU 与三店 QUEJO 的原始数据与经营分析可视化。";
 ---
 <!doctype html>
 <html lang="zh-CN">
@@ -19,6 +16,9 @@ const endpoints = shopsData.endpoints;
     <title>{pageTitle}</title>
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="/tiktok-shops.css">
+    <script is:inline src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+    <script is:inline src="/script.js" defer></script>
+    <script is:inline src="/tiktok-shops.js" defer></script>
   </head>
   <body class="shops-page">
     <a class="skip-link" href="#content">跳到内容</a>
@@ -29,10 +29,14 @@ const endpoints = shopsData.endpoints;
           <span class="brand-mark" aria-hidden="true">V</span>
           <span>{site.brandName}</span>
         </a>
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-navigation">
+          <span class="sr-only">打开导航</span>
+          <span></span><span></span><span></span>
+        </button>
         <nav class="primary-nav" id="primary-navigation" aria-label="主导航">
           <a href="/">Home</a>
           <a href="/product-analysis/">Product Intelligence</a>
-          <a class="active" href="/tiktok-shops/" aria-current="page">TikTok Shops</a>
+          <a class="active" href="/tiktok-shops/" aria-current="page">Shop Dashboard</a>
           <a href="/#contact">Contact</a>
         </nav>
       </div>
@@ -41,91 +45,67 @@ const endpoints = shopsData.endpoints;
     <main id="content">
       <section class="shops-hero">
         <div class="container">
-          <p class="eyebrow">TikTok Shop Partner Open API</p>
-          <h1>二店 / 三店可调用能力总览</h1>
-          <p class="lead">
-            汇总巴西本地店 <strong>MIOU（二店）</strong> 与 <strong>QUEJO（三店）</strong> 的授权 Scope、
-            可用业务接口与实时店铺摘要。页面不含 App Secret / Token / Cipher。
-          </p>
-          <p class="meta">数据更新：{shopsData.updated_at} · API：{shopsData.api_base}</p>
+          <p class="eyebrow">TikTok Shop · Brazil Local</p>
+          <h1>二店 / 三店经营看板</h1>
+          <p class="lead">原始订单与商品数据，加上销量、库存、状态分布等分析图表。数据来自店铺实时 Open API 快照。</p>
+          <p class="meta" id="updated-at">加载中…</p>
         </div>
       </section>
 
-      <section class="container shops-grid">
-        {shops.map((shop) => (
-          <article class="shop-card" id={shop.profile}>
-            <div class="shop-card-top">
-              <span class="badge">{shop.label}</span>
-              <h2>{shop.shop_name}</h2>
-              <p>{shop.seller_name} · {shop.region} · {shop.seller_type}</p>
-            </div>
-            <div class="stat-row">
-              <div><span class="n">{shop.product_total}</span><span class="l">商品</span></div>
-              <div><span class="n">{shop.order_total}</span><span class="l">订单</span></div>
-              <div><span class="n">{shop.scopes.length}</span><span class="l">Scopes</span></div>
-            </div>
-            <dl class="kv">
-              <div><dt>Shop Code</dt><dd>{shop.shop_code}</dd></div>
-              <div><dt>Shop ID</dt><dd>{shop.shop_id}</dd></div>
-              <div><dt>App Key</dt><dd>{shop.app_key}</dd></div>
-              <div><dt>Service ID</dt><dd>{shop.service_id || "—"}</dd></div>
-              <div><dt>CLI Profile</dt><dd><code>--profile {shop.profile === "default" ? "default" : "shop2"}</code></dd></div>
-            </dl>
-            <h3>仓库</h3>
-            <ul class="plain">
-              {shop.warehouses.map((w) => (
-                <li>
-                  <strong>{w.type}</strong>
-                  {w.is_default ? " · 默认销售仓" : ""}
-                  <br /><span class="muted">{w.id}</span>
-                </li>
-              ))}
-            </ul>
-            <h3>已授权 Scopes（{shop.scopes.length}）</h3>
-            <div class="scope-cloud">
-              {shop.scopes.map((s) => <code>{s}</code>)}
-            </div>
-          </article>
-        ))}
+      <section class="container">
+        <div class="shop-tabs" role="tablist" aria-label="店铺切换">
+          <button class="shop-tab active" type="button" data-shop="0">三店 QUEJO</button>
+          <button class="shop-tab" type="button" data-shop="1">二店 MIOU</button>
+          <button class="shop-tab" type="button" data-shop="compare">双店对比</button>
+        </div>
       </section>
 
-      <section class="container endpoints">
-        <h2>可调用接口分组</h2>
-        <p class="section-lead">两店当前 Scope 基本一致，下列接口两边均可按权限调用。搜索类接口请把 <code>page_size</code> / <code>page_token</code> 放在 query，不要放 body。</p>
-        {endpoints.map((group) => (
-          <div class="endpoint-group">
-            <h3>{group.group}</h3>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr><th>方法</th><th>路径</th><th>说明</th><th>相关 Scope</th></tr>
-                </thead>
-                <tbody>
-                  {group.items.map((item) => (
-                    <tr>
-                      <td><span class="method">{item.method}</span></td>
-                      <td><code>{item.path}</code></td>
-                      <td>{item.desc}</td>
-                      <td><code>{item.scope}</code></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+      <section class="container kpi-grid" id="kpi-grid" aria-live="polite"></section>
+
+      <section class="container view-panels">
+        <div class="panel-tabs" role="tablist">
+          <button class="panel-tab active" type="button" data-panel="charts">分析图表</button>
+          <button class="panel-tab" type="button" data-panel="raw">原始数据</button>
+        </div>
+
+        <div id="panel-charts" class="panel-body active">
+          <div class="chart-grid" id="chart-grid">
+            <article class="chart-card"><h3>日 GMV / 订单</h3><canvas id="chart-daily"></canvas></article>
+            <article class="chart-card"><h3>订单状态分布</h3><canvas id="chart-order-status"></canvas></article>
+            <article class="chart-card"><h3>商品状态分布</h3><canvas id="chart-product-status"></canvas></article>
+            <article class="chart-card"><h3>库存区间分布</h3><canvas id="chart-inventory"></canvas></article>
+            <article class="chart-card chart-wide"><h3>销量 Top 商品</h3><canvas id="chart-top-products"></canvas></article>
+            <article class="chart-card chart-wide" id="compare-charts" hidden>
+              <h3>双店对比</h3>
+              <canvas id="chart-compare"></canvas>
+            </article>
           </div>
-        ))}
-      </section>
+        </div>
 
-      <section class="container cli-box">
-        <h2>本地调用示例</h2>
-        <pre>{shopsData.cli.join("\n")}</pre>
-        <p class="muted">完整凭证保存在本机 <code>.env</code> 与 <code>data/cache/tiktok_shop_tokens*.json</code>，不会上传到本站。</p>
+        <div id="panel-raw" class="panel-body">
+          <div class="raw-toolbar">
+            <label>数据表
+              <select id="raw-table-select">
+                <option value="products">商品原始数据</option>
+                <option value="orders">订单原始数据</option>
+              </select>
+            </label>
+            <input id="raw-search" type="search" placeholder="搜索标题 / SKU / 订单号…" />
+            <span class="meta" id="raw-count"></span>
+          </div>
+          <div class="table-wrap">
+            <table id="raw-table">
+              <thead id="raw-thead"></thead>
+              <tbody id="raw-tbody"></tbody>
+            </table>
+          </div>
+        </div>
       </section>
     </main>
 
     <footer class="site-footer">
       <div class="container">
-        <p>© {new Date().getFullYear()} {site.brandName}. Internal API reference.</p>
+        <p>© {new Date().getFullYear()} {site.brandName}. Shop operations dashboard.</p>
       </div>
     </footer>
   </body>
